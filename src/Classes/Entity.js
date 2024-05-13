@@ -163,7 +163,7 @@ export class Entity {
      * @param  player - player entity used for entity detection
      *
      */
-    update({canvasContext, currentMapCollisions, player}) {
+    update({canvasContext, currentMapCollisions, player, collectibles}) {
         this.updateFrames()
         this.updateHitbox()
         this.updateAttackBox()
