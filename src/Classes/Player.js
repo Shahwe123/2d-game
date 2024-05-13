@@ -37,8 +37,8 @@ export class Player extends Entity {
             width:70,
             height:25
         }
-        this.health = 100
-        this.currentHealth = 100
+        this.health = 300
+        this.currentHealth = 300
         this.isDead = false
         this.isAttacking = false
         this.attackPower = 10
@@ -54,30 +54,27 @@ export class Player extends Entity {
      * @param enemies - array of all the enemies in the level
      *
      */
-    update({canvasContext, currentMapCollisions, enemies}) {
+    update({canvasContext, currentMapCollisions, enemies, collectibles}) {
         this.updateAttackBox()
-        this.attack({enemies})
+        this.attack({enemies, collectibles})
         this.updateFrames()
         this.updateHitbox()
         this.updateHealthBarPosition()
-
+        this.didCollectCollectables({collectibles})
         canvasContext.fillStyle = "red"
-        canvasContext.fillRect(
-            this.healthBar.position.x,
-            this.healthBar.position.y,
-            this.healthBar.width,
-            this.healthBar.height)
-
+        canvasContext.fillRect(this.healthBar.position.x, this.healthBar.position.y, this.healthBar.width, this.healthBar.height)
         this.draw({canvasContext})
         if (!this.isDead) this.position.x += this.velocity.x
         this.updateHitbox()
         this.updateHealthBarPosition()
+        this.didCollectCollectables({collectibles})
         this.checkForHorizontalCollisions(currentMapCollisions)
+
         this.applyGravity()
         this.updateHitbox()
         this.updateHealthBarPosition()
+        this.didCollectCollectables({collectibles})
         this.checkForVerticalCollisions(currentMapCollisions)
-
     }
 
 
@@ -88,7 +85,7 @@ export class Player extends Entity {
      * @param enemies - array of enemies in the current level
      *
      */
-    attack({enemies}) {
+    attack({enemies, collectibles}) {
         if (!this.isAttacking || this.isDead) {
             return
         }
@@ -99,7 +96,7 @@ export class Player extends Entity {
             if (collison({entity: this.attackBox, block: enemy.hitbox})){
                 if ((this.currentFrame + 1) === this.frameRate){
                     enemy.isHit = true
-                    enemy.takeHit({player:this})
+                    enemy.takeHit({player:this, collectibles})
                     enemy.isHit = false
                 }
             }
@@ -129,5 +126,15 @@ export class Player extends Entity {
                 height:25
             }
         }
+    }
+
+    didCollectCollectables({collectibles}) {
+        collectibles.forEach(collectible => {
+            if (collison({entity: this.hitbox, block: collectible}) && collectible.isPickedUp === false) {
+                collectible.isPickedUp = true
+                collectible.update({player:this})
+            }
+        });
+
     }
 }
