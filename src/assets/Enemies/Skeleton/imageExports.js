@@ -53,11 +53,11 @@ export const skeletonAnimations = {
     attack: {
         src:AttackSpriteSrc,
         frameRate: 8,
-        frameBuffer: 5,
+        frameBuffer: 7,
     },
     attackLeft: {
         src:AttackLeftSpriteSrc,
         frameRate: 8,
-        frameBuffer: 5,
+        frameBuffer: 7,
     },
 }
