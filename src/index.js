@@ -5,7 +5,7 @@
         - function animate loops
 
 */
-
+import "./main.css"
 import { Player } from './Classes/Player'
 import { levels } from './levels'
 
@@ -99,7 +99,6 @@ function animate() {
 
     if (keys.z.pressed) {
         player.switchSprite('attack2')
-        player.isAttacking = true
     }
 
 
@@ -142,9 +141,11 @@ enemies = levelInitResults['enemies']
 animate()
 
 window.addEventListener('keydown', (event) => {
+    if (event.repeat) return
     switch (event.key) {
         case "a":
             keys.a.pressed = true
+
             break;
         case "w":
             if (!player.isDead) player.velocity.y = -15
@@ -155,7 +156,9 @@ window.addEventListener('keydown', (event) => {
         case "z":
             keys.a.pressed = false
             keys.d.pressed = false
-            keys.z.pressed = true
+            player.isAttacking = true
+            player.attack({enemies, collectibles})
+            player.switchSprite('attack2')
             break;
         case "s":
             break;
