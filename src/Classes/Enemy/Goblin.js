@@ -1,5 +1,6 @@
 import { goblinAnimations } from "../../assets/Enemies/Goblin/imageExports"
 import { collison } from "../../utils"
+import { HealthKit } from "../Collectibles/HealthKit"
 import { Entity } from "../Entity"
 /**
  *
@@ -54,7 +55,7 @@ export class Goblin extends Entity {
         this.attackPower = 5
     }
 
-    takeHit({player}){
+    takeHit({player, collectibles}){
         this.lastDirection === "left"? this.switchSprite("hurtLeft") : this.switchSprite("hurt")
         let newWidth = (this.healthBar.width / this.health) * (this.health - player.attackPower)
         this.healthBar.width = newWidth
@@ -67,6 +68,9 @@ export class Goblin extends Entity {
                 this.switchSprite("dead")
 
             }
+            let id = (collectibles.length === 0 ? collectibles.length: collectibles.length + 1)
+            collectibles.push(new HealthKit({position: this.hitbox.position, mapKey: this.currentMapKey, id}))
+
         }
         if (this.position.x > player.position.x) {
             this.position.x += 5

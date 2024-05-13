@@ -1,6 +1,7 @@
 import { Entity } from "../Entity"
 import { skeletonAnimations } from "../../assets/Enemies/Skeleton/imageExports"
 import { collison } from "../../utils"
+import { HealthKit } from "../Collectibles/HealthKit"
 /**
  *
  *  Skeleton - represents an enemy entity
@@ -54,7 +55,7 @@ export class Skeleton extends Entity {
         this.attackPower = 5
     }
 
-    takeHit({player}){
+    takeHit({player, collectibles}){
         this.lastDirection === "left"? this.switchSprite("hurtLeft") : this.switchSprite("hurt")
         let newWidth = (this.healthBar.width / this.health) * (this.health - player.attackPower)
         this.healthBar.width = newWidth
@@ -67,6 +68,8 @@ export class Skeleton extends Entity {
                 this.switchSprite("dead")
 
             }
+            let id = (collectibles.length === 0 ? collectibles.length: collectibles.length + 1)
+            collectibles.push(new HealthKit({position: this.hitbox.position, mapKey: this.currentMapKey, id}))
         }
         if (this.position.x > player.position.x) {
             this.position.x += 5
@@ -113,7 +116,6 @@ export class Skeleton extends Entity {
                     this.switchSprite("attackLeft")
             //         // if the enemies attack animation is completed, it counts as a hit
                     if ((this.currentFrame + 1) === this.frameRate){
-                        console.log("object");
                         player.switchSprite("hit")
                         let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
                         player.healthBar.width = newWidth

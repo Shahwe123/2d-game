@@ -1,5 +1,6 @@
 import { werewolfAnimations } from "../../assets/Enemies/White Werewolf/werewolfImageExports";
 import { collison } from "../../utils";
+import { HealthKit } from "../Collectibles/HealthKit";
 import { Entity } from "../Entity";
 
 /**
@@ -136,7 +137,7 @@ export class WhiteWerewolf extends Entity {
         }
     }
 
-    takeHit({player}){
+    takeHit({player, collectibles}){
         this.switchSprite("hurtLeft")
         let newWidth = (this.healthBar.width / this.health) * (this.health - player.attackPower)
         this.healthBar.width = newWidth
@@ -147,9 +148,11 @@ export class WhiteWerewolf extends Entity {
                 this.switchSprite("deadLeft")
             } else {
                 this.switchSprite("dead")
-
             }
             this.switchSprite("dead")
+            let id = (collectibles.length === 0 ? collectibles.length: collectibles.length + 1)
+            collectibles.push(new HealthKit({position: this.hitbox.position, mapKey: this.currentMapKey, id}))
+
         }
         if (this.position.x > this.position.x) {
             this.position.x += -30
