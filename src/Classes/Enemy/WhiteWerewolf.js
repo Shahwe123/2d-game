@@ -154,7 +154,8 @@ export class WhiteWerewolf extends Entity {
             collectibles.push(new HealthKit({position: this.hitbox.position, mapKey: this.currentMapKey, id}))
 
         }
-        if (this.position.x > this.position.x) {
+
+        if (this.position.x > player.position.x) {
             this.position.x += -30
         } else {
             this.position.x += 30
