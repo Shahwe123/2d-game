@@ -38,6 +38,7 @@ const player = new Player({position: {x:0,y:400}})
 let map
 let currentMapCollisions
 let enemies = []
+let collectibles = []
 
 function animate() {
     window.requestAnimationFrame(animate)
@@ -49,11 +50,17 @@ function animate() {
     //     canvasContext.fillRect(collision.position.x, collision.position.y, collision.width, collision.height)
     // });
     enemies.forEach(enemy => {
-        if (enemy.currentMapKey === map.key) enemy.update({canvasContext, currentMapCollisions, player})
+        if (enemy.currentMapKey === map.key) enemy.update({canvasContext, currentMapCollisions, player, collectibles})
     })
 
 
-    player.update({canvas, canvasContext, currentMapCollisions, enemies})
+
+    player.update({canvas, canvasContext, currentMapCollisions, enemies, collectibles})
+    collectibles.forEach(collectible => {
+        if (collectible.mapKey === map.key && !collectible.isPickedUp) {
+            collectible.draw({canvasContext})
+        }
+    });
     player.velocity.x = 0
 
     if (player.hitbox.position.x + player.hitbox.width < 0) {
@@ -63,7 +70,7 @@ function animate() {
         map.update({canvasContext})
         player.position.x = changeMapResults['newPlayerPosition'].x
         player.position.y = changeMapResults['newPlayerPosition'].y
-        player.update({canvas, canvasContext, currentMapCollisions})
+        player.update({canvas, canvasContext, currentMapCollisions, enemies, collectibles})
     } else if (player.hitbox.position.x >= canvas.width) {
         let changeMapResults = levels[level].changeMap({direction: "right", currentMapKey: map.key, currentPlayerPosition: player.position})
         currentMapCollisions = changeMapResults['collisions']
@@ -71,7 +78,7 @@ function animate() {
         map.update({canvasContext})
         player.position.x = changeMapResults['newPlayerPosition'].x
         player.position.y = changeMapResults['newPlayerPosition'].y
-        player.update({canvas, canvasContext, currentMapCollisions})
+        player.update({canvas, canvasContext, currentMapCollisions, enemies, collectibles})
     } else if (player.hitbox.position.y >= canvas.height) {
         let changeMapResults = levels[level].changeMap({direction: "bottom", currentMapKey: map.key, currentPlayerPosition: player.position})
         currentMapCollisions = changeMapResults['collisions']
@@ -79,7 +86,7 @@ function animate() {
         map.update({canvasContext})
         player.position.x = changeMapResults['newPlayerPosition'].x
         player.position.y = changeMapResults['newPlayerPosition'].y
-        player.update({canvas, canvasContext, currentMapCollisions})
+        player.update({canvas, canvasContext, currentMapCollisions, enemies, collectibles})
     } else if (player.hitbox.position.y <= 0) {
         let changeMapResults = levels[level].changeMap({direction: "top", currentMapKey: map.key, currentPlayerPosition: player.position})
         currentMapCollisions = changeMapResults['collisions']
@@ -87,7 +94,7 @@ function animate() {
         map.update({canvasContext})
         player.position.x = changeMapResults['newPlayerPosition'].x
         player.position.y = changeMapResults['newPlayerPosition'].y
-        player.update({canvas, canvasContext, currentMapCollisions})
+        player.update({canvas, canvasContext, currentMapCollisions, enemies, collectibles})
     }
 
     if (keys.z.pressed) {
