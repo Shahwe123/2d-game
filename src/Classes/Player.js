@@ -63,6 +63,8 @@ export class Player extends Entity {
         this.didCollectCollectables({collectibles})
         canvasContext.fillStyle = "red"
         canvasContext.fillRect(this.healthBar.position.x, this.healthBar.position.y, this.healthBar.width, this.healthBar.height)
+        canvasContext.fillStyle = "rgba(0,255,0,0.4)"
+        canvasContext.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
         this.draw({canvasContext})
         if (!this.isDead) this.position.x += this.velocity.x
         this.updateHitbox()
@@ -94,14 +96,16 @@ export class Player extends Entity {
                 return
             }
             if (collison({entity: this.attackBox, block: enemy.hitbox})){
-                if ((this.currentFrame + 1) === this.frameRate){
+                // if ((this.currentFrame + 1) === this.frameRate){
+                    console.log(this.isAttacking);
                     enemy.isHit = true
                     enemy.takeHit({player:this, collectibles})
                     enemy.isHit = false
-                }
+                // }
             }
 
         });
+        this.isAttacking = false
     }
 
     /**
