@@ -148,7 +148,8 @@ window.addEventListener('keydown', (event) => {
 
             break;
         case "w":
-            if (!player.isDead) player.velocity.y = -15
+            if (event.repeat) return
+            if (!player.isDead && player.velocity.y === 0) player.velocity.y = -15
             break;
         case "d":
             keys.d.pressed = true
