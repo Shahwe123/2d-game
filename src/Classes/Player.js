@@ -54,10 +54,11 @@ export class Player extends Entity {
      * @param enemies - array of all the enemies in the level
      *
      */
-    update({canvasContext, currentMapCollisions, enemies, collectibles}) {
-        this.updateAttackBox()
-        this.attack({enemies, collectibles})
+    update({canvasContext, currentMapCollisions, enemies, collectibles, currentMapKey}) {
+
+        this.attack({enemies, collectibles, currentMapKey})
         this.updateFrames()
+        this.draw({canvasContext})
         this.updateHitbox()
         this.updateHealthBarPosition()
         this.didCollectCollectables({collectibles})
@@ -68,12 +69,14 @@ export class Player extends Entity {
         this.draw({canvasContext})
         if (!this.isDead) this.position.x += this.velocity.x
         this.updateHitbox()
+        this.updateAttackBox()
         this.updateHealthBarPosition()
         this.didCollectCollectables({collectibles})
         this.checkForHorizontalCollisions(currentMapCollisions)
 
         this.applyGravity()
         this.updateHitbox()
+        this.updateAttackBox()
         this.updateHealthBarPosition()
         this.didCollectCollectables({collectibles})
         this.checkForVerticalCollisions(currentMapCollisions)
@@ -87,25 +90,23 @@ export class Player extends Entity {
      * @param enemies - array of enemies in the current level
      *
      */
-    attack({enemies, collectibles}) {
-        if (!this.isAttacking || this.isDead) {
+    attack({enemies, collectibles, currentMapKey}) {
+        if (this.isDead) {
             return
         }
         enemies.forEach(enemy => {
             if (enemy.isDead) {
                 return
             }
-            if (collison({entity: this.attackBox, block: enemy.hitbox})){
-                // if ((this.currentFrame + 1) === this.frameRate){
-                    console.log(this.isAttacking);
-                    enemy.isHit = true
-                    enemy.takeHit({player:this, collectibles})
-                    enemy.isHit = false
-                // }
+            //TODO: tryt to doing if ucrretnfame === check before and if true do collison check
+            if (enemy.currentMapKey === currentMapKey && this.isAttacking && this.currentFrame === this.animations['attack2'].frameRate - 1 &&  collison({entity: this.attackBox, block: enemy.hitbox}) ){
+                enemy.isHit = true
+                enemy.takeHit({player:this, collectibles})
+                this.currentFrame = 0
+                enemy.isHit = false
             }
 
         });
-        this.isAttacking = false
     }
 
     /**
@@ -117,7 +118,7 @@ export class Player extends Entity {
         if (this.currentAvatarPosition == this.avatarPositionLeft) {
             this.attackBox = {
                 position: {
-                    x:this.hitbox.position.x - 40,
+                    x:this.hitbox.position.x - 60,
                     y:this.hitbox.position.y
                 },
                 width:70,
@@ -125,7 +126,10 @@ export class Player extends Entity {
             }
         } else {
             this.attackBox = {
-                position: this.hitbox.position,
+                position: {
+                    x:this.hitbox.position.x + this.hitbox.width,
+                    y:this.hitbox.position.y
+                },
                 width:70,
                 height:25
             }
