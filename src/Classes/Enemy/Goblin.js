@@ -55,31 +55,6 @@ export class Goblin extends Entity {
         this.attackPower = 5
     }
 
-    takeHit({player, collectibles}){
-        this.lastDirection === "left"? this.switchSprite("hurtLeft") : this.switchSprite("hurt")
-        let newWidth = (this.healthBar.width / this.health) * (this.health - player.attackPower)
-        this.healthBar.width = newWidth
-        this.currentHealth -= player.attackPower
-        if (this.currentHealth === 0) {
-            this.isDead = true
-            if (this.lastDirection === "left" ) {
-                this.switchSprite("deadLeft")
-            } else {
-                this.switchSprite("dead")
-
-            }
-            let id = (collectibles.length === 0 ? collectibles.length: collectibles.length + 1)
-            collectibles.push(new HealthKit({position: this.hitbox.position, mapKey: this.currentMapKey, id}))
-
-        }
-        if (this.position.x > player.position.x) {
-            this.position.x += 5
-        } else {
-            this.position.x += -5
-        }
-        this.isHit = false
-    }
-
     /**
      *
      *  Checks for a collision between the enemies detection area and the player and attacks if close

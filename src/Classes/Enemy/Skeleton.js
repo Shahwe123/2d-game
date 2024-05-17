@@ -55,30 +55,6 @@ export class Skeleton extends Entity {
         this.attackPower = 5
     }
 
-    takeHit({player, collectibles}){
-        this.lastDirection === "left"? this.switchSprite("hurtLeft") : this.switchSprite("hurt")
-        let newWidth = (this.healthBar.width / this.health) * (this.health - player.attackPower)
-        this.healthBar.width = newWidth
-        this.currentHealth -= player.attackPower
-        if (this.currentHealth === 0) {
-            this.isDead = true
-            if (this.lastDirection === "left" ) {
-                this.switchSprite("deadLeft")
-            } else {
-                this.switchSprite("dead")
-
-            }
-            let id = (collectibles.length === 0 ? collectibles.length: collectibles.length + 1)
-            collectibles.push(new HealthKit({position: this.hitbox.position, mapKey: this.currentMapKey, id}))
-        }
-        if (this.position.x > player.position.x) {
-            this.position.x += 5
-        } else {
-            this.position.x += -5
-        }
-        this.isHit = false
-    }
-
     /**
      *
      *  Checks for a collision between the enemies detection area and the player and attacks if close
@@ -108,13 +84,13 @@ export class Skeleton extends Entity {
                 this.attackBox = this.attackBoxLeft
                 this.velocity.x = -0.25
 
-            //     // if the enemy reaches the player's hitbox area, it attacks, otherwise keeps running
+                // if the enemy reaches the player's hitbox area, it attacks, otherwise keeps running
 
                 if (collison({entity: this.attackBox, block: player.hitbox})){
 
                     this.velocity.x = 0
                     this.switchSprite("attackLeft")
-            //         // if the enemies attack animation is completed, it counts as a hit
+                    // if the enemies attack animation is completed, it counts as a hit
                     if ((this.currentFrame + 1) === this.frameRate){
                         player.switchSprite("hit")
                         let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
@@ -124,10 +100,9 @@ export class Skeleton extends Entity {
                             player.isDead = true
                             return
                         }
-            //             player.position.x += -50
 
                     }
-            //         //TODO: player blokc
+
                 }
             // // if player is to the rigth
             } else if (this.position.x < player.position.x) {
