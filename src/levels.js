@@ -232,7 +232,12 @@ export let levels = {
                 newMap,
                 newPlayerPosition,
             }
-        }
+        },
+        locked: false,
+        objectives:[{
+            eliminateTargets: 5,
+            achieved: false
+        }]
     }
 }
 
@@ -246,7 +251,6 @@ function createEnemies({levelStructure}) {
     let enemies = []
     for (const key in levelStructure) {
         levelStructure[key].enemies.forEach(enemy => {
-            console.log();
             if (enemy.type === 'WhiteWerewolf') {
                 enemies.push(new WhiteWerewolf({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition}))
             }  else if (enemy.type === "Skeleton") {
