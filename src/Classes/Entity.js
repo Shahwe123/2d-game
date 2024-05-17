@@ -1,4 +1,5 @@
 import { collison } from "../utils"
+import { HealthKit } from "./Collectibles/HealthKit"
 /**
  * Represents any moving character, player or enemy
  *
@@ -44,13 +45,13 @@ export class Entity {
      */
     switchSprite(key){
         //TODO: if attackiong need to let animation finish before moving on
-        if (this.currentSpriteKey.includes('attack') && this.currentFrame < this.frameRate - 1){
+        if (this.currentSpriteKey === ('attack2') && this.currentFrame < this.animations['attack2'].frameRate - 1){
             return
         }
         if (this.isTimeOutOn) {
             return
         }
-
+        this.currentFrame = 0
         if (this.sprite === this.animations[key].image || !this.loaded) return
         if (this.lastDirection == 'right') {
             this.currentAvatarPosition = this.avatarPositionRight
@@ -61,6 +62,39 @@ export class Entity {
         this.currentSpriteKey = key
         this.frameBuffer  = this.animations[key].frameBuffer
         this.frameRate = this.animations[key].frameRate
+    }
+
+    takeHit({player, collectibles}){
+        if (!player.isAttacking) {
+            return
+        }
+        if (this.lastDirection === "left") {
+
+            if (this.currentSpriteKey !== "hurtLeft") this.switchSprite("hurtLeft")
+        } else {
+            if (this.currentSpriteKey !== "hurt") this.switchSprite("hurt")
+
+        }
+        let newWidth = (this.healthBar.width / this.health) * (this.health - player.attackPower)
+        this.healthBar.width = newWidth
+        this.currentHealth -= player.attackPower
+        console.log(this.currentHealth);
+        if (this.currentHealth === 0) {
+            this.isDead = true
+            if (this.lastDirection === "left" ) {
+                if (this.currentSpriteKey !== "deadLeft") this.switchSprite("deadLeft")
+            } else {
+                if (this.currentSpriteKey !== "dead") this.switchSprite("dead")
+            }
+            let id = (collectibles.length === 0 ? collectibles.length: collectibles.length + 1)
+            collectibles.push(new HealthKit({position: this.hitbox.position, mapKey: this.currentMapKey, id}))
+        }
+        if (this.position.x > player.position.x) {
+            this.position.x += 5
+        } else {
+            this.position.x += -5
+        }
+        this.isHit = false
     }
 
     /**
@@ -110,17 +144,10 @@ export class Entity {
      */
     draw({canvasContext}) {
         if (!this.sprite) return
-        if (this.isDead && this.type != "Player") {
-            if (this.lastDirection === "left" ) {
-                this.switchSprite("deadLeft")
-            } else {
-                this.switchSprite("dead")
-            }
-        }
         let cropbox = {}
 
         // used for animations that have been inverted
-        if (this.currentSpriteKey.includes("Left")&& (this.type === "WhiteWerewolf" || this.type === "Skeleton" || this.type === "Goblin")) {
+        if (this.currentSpriteKey.includes("Left")&& (this.type === "WhiteWerewolf" || this.type === "Skeleton" || this.type === "Goblin" || this.type === "Player")) {
             cropbox = {
                position: {
                    x:(this.animations[this.currentSpriteKey].frameRate - 1 - this.currentFrame) * (this.sprite.width / this.animations[this.currentSpriteKey].frameRate),
@@ -172,10 +199,12 @@ export class Entity {
 
         canvasContext.fillStyle = "red"
         canvasContext.fillRect(this.healthBar.position.x, this.healthBar.position.y, this.healthBar.width, this.healthBar.height)
+        canvasContext.fillStyle = "red"
+        canvasContext.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
 
-        // if (this.type !== "Player") {
-        this.checkForPlayerDetection({player})
-        // }
+        if (this.type !== "Player") {
+            this.checkForPlayerDetection({player})
+        }
 
         if (this.alerted === false && this.type !== "Player") {
             this.roaming()
@@ -295,19 +324,19 @@ export class Entity {
         if (this.roamDirection  === "left") {
             // this.switchSprite("walkLeft")
             if ("walkLeft" in this.animations){
-                this.switchSprite("walkLeft")
+                if (this.currentSpriteKey !== "walkLeft") this.switchSprite("walkLeft")
                 this.velocity.x = -0.25
             } else {
-                this.switchSprite("runLeft")
+                if (this.currentSpriteKey !== "runLeft") this.switchSprite("runLeft")
                 this.velocity.x = -1.5
             }
 
         } else if (this.roamDirection === "right") {
             if ("walkRight" in this.animations){
-                this.switchSprite("walkRight")
+                if (this.currentSpriteKey !== "walkRight") this.switchSprite("walkRight")
                 this.velocity.x = 0.25
             } else {
-                this.switchSprite("runRight")
+                if (this.currentSpriteKey !== "runRight") this.switchSprite("runRight")
                 this.velocity.x = 1.5
             }
         }
