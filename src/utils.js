@@ -54,3 +54,18 @@ export function collison({entity, block}){
         entity.position.x <= block.position.x + block.width &&
         entity.position.x + entity.width >= block.position.x)
 }
+/**
+ * Returns the number of dead enemies
+ *
+ * @param  enemies - array of enemies
+ * @returns deadCount - number of dead enemies
+ */
+export function noEnemiesDead(enemies) {
+    let deadCount = 0
+    enemies.forEach(enemy => {
+        if (enemy.isDead) {
+            deadCount++
+        }
+    });
+    return deadCount
+}
