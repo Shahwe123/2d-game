@@ -9,4 +9,8 @@ export class CollisonBlock {
         this.width = 32
         this.height = 32
     }
+    draw({canvasContext}) {
+        canvasContext.fillStyle = "red"
+        canvasContext.fillRect(this.position.x, this.position.y, this.width, this.height)
+    }
 }
