@@ -70,8 +70,13 @@ export class WhiteWerewolf extends Entity {
             return
         }
         if (player.currentHealth === 0 ) {
-            player.switchSprite("death")
-            this.lastDirection === "left" ? this.switchSprite("idleLeft"): this.switchSprite("idleRight")
+            if (player.currentSpriteKey !== "death") player.switchSprite("death")
+            if (this.lastDirection === "left") {
+                if (this.currentSpriteKey !== "idleLeft") this.switchSprite("idleLeft")
+            } else {
+
+                if (this.currentSpriteKey !== "idleRight") this.switchSprite("idleRight")
+            }
             return
         }
         // Collision with detection checks if the player is within the enemies detection area
@@ -81,22 +86,16 @@ export class WhiteWerewolf extends Entity {
 
             // if player is the to left
             if (this.position.x > player.position.x) {
-
-                this.switchSprite('runLeft')
-                this.lastDirection = "left"
-                this.attackBox = this.attackBoxLeft
-                this.velocity.x = -3
-
                 // if the enemy reaches the player's hitbox area, it attacks, otherwise keeps running
 
                 if (collison({entity: this.attackBox, block: player.hitbox})){
 
                     this.velocity.x = 0
-                    this.switchSprite("attack3Left")
+                    if (this.currentSpriteKey !== "attack3Left") this.switchSprite("attack3Left")
                     // if the enemies attack animation is completed, it counts as a hit
                     if ((this.currentFrame + 1) === this.frameRate){
 
-                        player.switchSprite("hit")
+                        if (player.currentSpriteKey !== "hit") player.switchSprite("hit")
                         let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
                         player.healthBar.width = newWidth
                         player.currentHealth -= this.attackPower
@@ -108,19 +107,21 @@ export class WhiteWerewolf extends Entity {
 
                     }
                     //TODO: player blokc
+                } else {
+                    if (this.currentSpriteKey !== "runLeft") this.switchSprite('runLeft')
+                        this.lastDirection = "left"
+                        this.attackBox = this.attackBoxLeft
+                        this.velocity.x = -3
                 }
             // if player is to the rigth
             } else if (this.position.x < player.position.x) {
-                this.switchSprite('runRight')
-                this.lastDirection = "right"
-                this.attackBox = this.attackBoxRight
-                this.velocity.x = 3
+
 
                 if (collison({entity: this.attackBox, block: player.hitbox})){
                     this.velocity.x = 0
-                    this.switchSprite("attack3")
+                    if (this.currentSpriteKey !== "attack3") this.switchSprite("attack3")
                     if ((this.currentFrame + 1) === this.frameRate){
-                        // player.switchSprite("hit")
+                        if (player.currentSpriteKey !== "hit") player.switchSprite("hit")
                         let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
                         player.healthBar.width = newWidth
                         player.currentHealth -= this.attackPower
@@ -130,7 +131,13 @@ export class WhiteWerewolf extends Entity {
                         }
                         player.position.x += 50
                     }
+                } else {
+                    if (this.currentSpriteKey !== "runRight") this.switchSprite('runRight')
+                        this.lastDirection = "right"
+                        this.attackBox = this.attackBoxRight
+                        this.velocity.x = 3
                 }
+
             }
         } else {
             this.alerted = false

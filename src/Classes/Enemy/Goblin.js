@@ -68,8 +68,13 @@ export class Goblin extends Entity {
             return
         }
         if (player.currentHealth === 0 ) {
-            player.switchSprite("death")
-            this.lastDirection === "left" ? this.switchSprite("idleLeft"): this.switchSprite("idleRight")
+            if (player.currentSpriteKey !== "death") player.switchSprite("death")
+            if (this.lastDirection === "left") {
+                if (this.currentSpriteKey !== "idleLeft") this.switchSprite("idleLeft")
+            } else {
+
+                if (this.currentSpriteKey !== "idleRight") this.switchSprite("idleRight")
+            }
             return
         }
         // Collision with detection checks if the player is within the enemies detection area
@@ -78,21 +83,15 @@ export class Goblin extends Entity {
             this.alerted = true
             // // if player is the to left
             if (this.position.x > player.position.x) {
-
-                this.switchSprite('runLeft')
-                this.lastDirection = "left"
-                this.attackBox = this.attackBoxLeft
-                this.velocity.x = -1.5
-
-            //     // if the enemy reaches the player's hitbox area, it attacks, otherwise keeps running
+                // if the enemy reaches the player's hitbox area, it attacks, otherwise keeps running
 
                 if (collison({entity: this.attackBox, block: player.hitbox})){
 
                     this.velocity.x = 0
-                    this.switchSprite("attackLeft")
-            //         // if the enemies attack animation is completed, it counts as a hit
+                    if (this.currentSpriteKey !== "attackLeft") this.switchSprite("attackLeft")
+                // if the enemies attack animation is completed, it counts as a hit
                     if ((this.currentFrame + 1) === this.frameRate){
-                        player.switchSprite("hit")
+                        if (player.currentSpriteKey !== "hit") player.switchSprite("hit")
                         let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
                         player.healthBar.width = newWidth
                         player.currentHealth -= this.attackPower
@@ -100,23 +99,26 @@ export class Goblin extends Entity {
                             player.isDead = true
                             return
                         }
-            //             player.position.x += -50
+                    // player.position.x += -50
 
                     }
-            //         //TODO: player blokc
+                //TODO: player blokc
+                } else {
+                    if (this.currentSpriteKey !== "runLeft") this.switchSprite('runLeft')
+                        this.lastDirection = "left"
+                        this.attackBox = this.attackBoxLeft
+                        this.velocity.x = -1.5
                 }
-            // // if player is to the rigth
+
+                // if player is to the rigth
             } else if (this.position.x < player.position.x) {
-                this.switchSprite('runRight')
-                this.lastDirection = "right"
-                this.attackBox = this.attackBoxRight
-                this.velocity.x = 1.5
+
 
                 if (collison({entity: this.attackBox, block: player.hitbox})){
                     this.velocity.x = 0
-                    this.switchSprite("attack")
+                    if (this.currentSpriteKey !== "attack") this.switchSprite("attack")
                     if ((this.currentFrame + 1) === this.frameRate){
-                        player.switchSprite("hit")
+                         if (player.currentSpriteKey !== "hit") player.switchSprite("hit")
                         let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
                         player.healthBar.width = newWidth
                         player.currentHealth -= this.attackPower
@@ -124,8 +126,13 @@ export class Goblin extends Entity {
                             player.isDead = true
                             return
                         }
-            //             player.position.x += 50
+                    // player.position.x += 50
                     }
+                } else {
+                    if (this.currentSpriteKey !== "runRight") this.switchSprite('runRight')
+                        this.lastDirection = "right"
+                        this.attackBox = this.attackBoxRight
+                        this.velocity.x = 1.5
                 }
             }
         } else {

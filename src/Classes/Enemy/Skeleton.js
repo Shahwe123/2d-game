@@ -36,7 +36,6 @@ export class Skeleton extends Entity {
         this.currentFrame = 0
         this.elapsedFrames = 0
         this.frameBuffer = this.animations[this.currentSpriteKey].frameBuffer
-
         // combat code
         this.alerted = false
         this.roamDirection = "left"
@@ -68,8 +67,13 @@ export class Skeleton extends Entity {
             return
         }
         if (player.currentHealth === 0 ) {
-            player.switchSprite("death")
-            this.lastDirection === "left" ? this.switchSprite("idleLeft"): this.switchSprite("idleRight")
+            if (player.currentSpriteKey !== "death") player.switchSprite("death")
+            if (this.lastDirection === "left") {
+                if (this.currentSpriteKey !== "idleLeft") this.switchSprite("idleLeft")
+            } else {
+
+                if (this.currentSpriteKey !== "idleRight") this.switchSprite("idleRight")
+            }
             return
         }
         // Collision with detection checks if the player is within the enemies detection area
@@ -79,20 +83,14 @@ export class Skeleton extends Entity {
             // // if player is the to left
             if (this.position.x > player.position.x) {
 
-                this.switchSprite('walkLeft')
-                this.lastDirection = "left"
-                this.attackBox = this.attackBoxLeft
-                this.velocity.x = -0.25
-
                 // if the enemy reaches the player's hitbox area, it attacks, otherwise keeps running
-
                 if (collison({entity: this.attackBox, block: player.hitbox})){
 
                     this.velocity.x = 0
-                    this.switchSprite("attackLeft")
+                    if (this.currentSpriteKey !== "attackLeft") this.switchSprite("attackLeft")
                     // if the enemies attack animation is completed, it counts as a hit
                     if ((this.currentFrame + 1) === this.frameRate){
-                        player.switchSprite("hit")
+                        // if (player.currentSpriteKey !== "hit") player.switchSprite("hit")
                         let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
                         player.healthBar.width = newWidth
                         player.currentHealth -= this.attackPower
@@ -100,22 +98,22 @@ export class Skeleton extends Entity {
                             player.isDead = true
                             return
                         }
-
                     }
-
+                } else {
+                    if (this.currentSpriteKey !== "walkLeft") this.switchSprite('walkLeft')
+                    this.lastDirection = "left"
+                    this.attackBox = this.attackBoxLeft
+                    this.velocity.x = -0.25
                 }
             // // if player is to the rigth
             } else if (this.position.x < player.position.x) {
-                this.switchSprite('walkRight')
-                this.lastDirection = "right"
-                this.attackBox = this.attackBoxRight
-                this.velocity.x = 0.25
+
 
                 if (collison({entity: this.attackBox, block: player.hitbox})){
                     this.velocity.x = 0
-                    this.switchSprite("attack")
+                    if (this.currentSpriteKey !== "attack") this.switchSprite("attack")
                     if ((this.currentFrame + 1) === this.frameRate){
-                        player.switchSprite("hit")
+                        // if (player.currentSpriteKey !== "hit") player.switchSprite("hit")
                         let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
                         player.healthBar.width = newWidth
                         player.currentHealth -= this.attackPower
@@ -125,6 +123,11 @@ export class Skeleton extends Entity {
                         }
             //             player.position.x += 50
                     }
+                } else {
+                    if (this.currentSpriteKey !== "walkRight") this.switchSprite('walkRight')
+                    this.lastDirection = "right"
+                    this.attackBox = this.attackBoxRight
+                    this.velocity.x = 0.25
                 }
             }
         } else {
