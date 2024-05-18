@@ -51,29 +51,7 @@ export class Goblin extends Entity {
 
         this.health = 50
         this.currentHealth = 50
-        this.attackPower = 5
-    }
-
-    takeHit({player}){
-        this.lastDirection === "left"? this.switchSprite("hurtLeft") : this.switchSprite("hurt")
-        let newWidth = (this.healthBar.width / this.health) * (this.health - player.attackPower)
-        this.healthBar.width = newWidth
-        this.currentHealth -= player.attackPower
-        if (this.currentHealth === 0) {
-            this.isDead = true
-            if (this.lastDirection === "left" ) {
-                this.switchSprite("deadLeft")
-            } else {
-                this.switchSprite("dead")
-
-            }
-        }
-        if (this.position.x > player.position.x) {
-            this.position.x += 5
-        } else {
-            this.position.x += -5
-        }
-        this.isHit = false
+        this.attackPower = 15
     }
 
     /**
@@ -89,8 +67,13 @@ export class Goblin extends Entity {
             return
         }
         if (player.currentHealth === 0 ) {
-            player.switchSprite("death")
-            this.lastDirection === "left" ? this.switchSprite("idleLeft"): this.switchSprite("idleRight")
+            if (player.currentSpriteKey !== "death") player.switchSprite("death")
+            if (this.lastDirection === "left") {
+                if (this.currentSpriteKey !== "idleLeft") this.switchSprite("idleLeft")
+            } else {
+
+                if (this.currentSpriteKey !== "idleRight") this.switchSprite("idleRight")
+            }
             return
         }
         // Collision with detection checks if the player is within the enemies detection area
@@ -99,54 +82,58 @@ export class Goblin extends Entity {
             this.alerted = true
             // // if player is the to left
             if (this.position.x > player.position.x) {
-
-                this.switchSprite('runLeft')
-                this.lastDirection = "left"
-                this.attackBox = this.attackBoxLeft
-                this.velocity.x = -1.5
-
-            //     // if the enemy reaches the player's hitbox area, it attacks, otherwise keeps running
+                // if the enemy reaches the player's hitbox area, it attacks, otherwise keeps running
 
                 if (collison({entity: this.attackBox, block: player.hitbox})){
 
                     this.velocity.x = 0
-                    this.switchSprite("attackLeft")
-            //         // if the enemies attack animation is completed, it counts as a hit
+                    if (this.currentSpriteKey !== "attackLeft") this.switchSprite("attackLeft")
+                // if the enemies attack animation is completed, it counts as a hit
                     if ((this.currentFrame + 1) === this.frameRate){
-                        player.switchSprite("hit")
+                        if (player.currentSpriteKey !== "hit") player.switchSprite("hit")
                         let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
                         player.healthBar.width = newWidth
                         player.currentHealth -= this.attackPower
-                        if (player.currentHealth === 0 ){
+                        this.currentFrame = 0
+                        if (player.currentHealth <= 0 ){
                             player.isDead = true
                             return
                         }
-            //             player.position.x += -50
+                    // player.position.x += -50
 
                     }
-            //         //TODO: player blokc
+                //TODO: player blokc
+                } else {
+                    if (this.currentSpriteKey !== "runLeft") this.switchSprite('runLeft')
+                        this.lastDirection = "left"
+                        this.attackBox = this.attackBoxLeft
+                        this.velocity.x = -3.5
                 }
-            // // if player is to the rigth
+
+                // if player is to the rigth
             } else if (this.position.x < player.position.x) {
-                this.switchSprite('runRight')
-                this.lastDirection = "right"
-                this.attackBox = this.attackBoxRight
-                this.velocity.x = 1.5
+
 
                 if (collison({entity: this.attackBox, block: player.hitbox})){
                     this.velocity.x = 0
-                    this.switchSprite("attack")
+                    if (this.currentSpriteKey !== "attack") this.switchSprite("attack")
                     if ((this.currentFrame + 1) === this.frameRate){
-                        player.switchSprite("hit")
+                         if (player.currentSpriteKey !== "hit") player.switchSprite("hit")
                         let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
                         player.healthBar.width = newWidth
                         player.currentHealth -= this.attackPower
-                        if (player.currentHealth === 0 ){
+                        this.currentFrame = 0
+                        if (player.currentHealth <= 0 ){
                             player.isDead = true
                             return
                         }
-            //             player.position.x += 50
+                    // player.position.x += 50
                     }
+                } else {
+                    if (this.currentSpriteKey !== "runRight") this.switchSprite('runRight')
+                        this.lastDirection = "right"
+                        this.attackBox = this.attackBoxRight
+                        this.velocity.x = 3.5
                 }
             }
         } else {
@@ -154,6 +141,9 @@ export class Goblin extends Entity {
         }
     }
 
+    /**
+     * As the entity moves, its detection area also updates.
+     */
     updateDetectionArea() {
         this.detectionArea = {
             position:{
@@ -164,7 +154,9 @@ export class Goblin extends Entity {
             height:this.avatarHeight
         }
     }
-
+    /**
+     * As the entity moves, its attackbox both left and right updates
+     */
     updateAttackBox() {
         this.attackBoxLeft = {
             position: {

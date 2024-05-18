@@ -1,5 +1,6 @@
 import { werewolfAnimations } from "../../assets/Enemies/White Werewolf/werewolfImageExports";
 import { collison } from "../../utils";
+import { HealthKit } from "../Collectibles/HealthKit";
 import { Entity } from "../Entity";
 
 /**
@@ -50,10 +51,10 @@ export class WhiteWerewolf extends Entity {
             height:25
         }
 
-
-        this.health = 150
-        this.currentHealth = 150
-        this.attackPower = 20
+        let nextAttackAnimation
+        this.health = 350
+        this.currentHealth = 350
+        this.attackPower = 50
     }
 
     /**
@@ -68,97 +69,99 @@ export class WhiteWerewolf extends Entity {
             this.velocity.x = 0
             return
         }
+
+        // If the player is dead,, shows death animation and entity goes idle
         if (player.currentHealth === 0 ) {
-            player.switchSprite("death")
-            this.lastDirection === "left" ? this.switchSprite("idleLeft"): this.switchSprite("idleRight")
+            if (player.currentSpriteKey !== "death") player.switchSprite("death")
+            if (this.lastDirection === "left") {
+                if (this.currentSpriteKey !== "idleLeft") this.switchSprite("idleLeft")
+            } else {
+
+                if (this.currentSpriteKey !== "idleRight") this.switchSprite("idleRight")
+            }
             return
         }
         // Collision with detection checks if the player is within the enemies detection area
-        // if so runs toward the player
+        // the entity runs toward the player if detection occurs
         if (!this.isHit && collison({entity: this.detectionArea, block: player})) {
             this.alerted = true
 
             // if player is the to left
             if (this.position.x > player.position.x) {
 
-                this.switchSprite('runLeft')
-                this.lastDirection = "left"
-                this.attackBox = this.attackBoxLeft
-                this.velocity.x = -3
-
-                // if the enemy reaches the player's hitbox area, it attacks, otherwise keeps running
-
+                // if the enemy reaches the player's hitbox area, it stops and attacks, otherwise keeps running
                 if (collison({entity: this.attackBox, block: player.hitbox})){
-
                     this.velocity.x = 0
-                    this.switchSprite("attack3Left")
+
+                    // Randomises the attack animation
+                    if (this.nextAttackAnimation) {
+                        if (this.currentSpriteKey !== this.nextAttackAnimation) this.switchSprite(this.nextAttackAnimation)
+                    } else {
+                        if (this.currentSpriteKey != "attack2Left") this.switchSprite("attack2Left")
+                    }
                     // if the enemies attack animation is completed, it counts as a hit
                     if ((this.currentFrame + 1) === this.frameRate){
 
-                        player.switchSprite("hit")
+                        if (player.currentSpriteKey !== "hit") player.switchSprite("hit")
                         let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
                         player.healthBar.width = newWidth
                         player.currentHealth -= this.attackPower
-                        if (player.currentHealth === 0 ){
+                        this.currentFrame = 0
+                        this.nextAttackAnimation = this.selectRandomAttackAnimation(["attack1Left", "attack2Left", "attack3Left", "runAttackLeft"])
+                        if (player.currentHealth <= 0 ){
                             player.isDead = true
                             return
                         }
                         player.position.x += -50
 
                     }
-                    //TODO: player blokc
+                    //TODO: player block
+                } else {
+                    if (this.currentSpriteKey !== "runLeft") this.switchSprite('runLeft')
+                        this.lastDirection = "left"
+                        this.attackBox = this.attackBoxLeft
+                        this.velocity.x = -3
                 }
             // if player is to the rigth
             } else if (this.position.x < player.position.x) {
-                this.switchSprite('runRight')
-                this.lastDirection = "right"
-                this.attackBox = this.attackBoxRight
-                this.velocity.x = 3
+
 
                 if (collison({entity: this.attackBox, block: player.hitbox})){
                     this.velocity.x = 0
-                    this.switchSprite("attack3")
+                    if (this.nextAttackAnimation) {
+                        if (this.currentSpriteKey !== this.nextAttackAnimation) this.switchSprite(this.nextAttackAnimation)
+                    } else {
+                        if (this.currentSpriteKey != "attack2") this.switchSprite("attack2")
+                    }
                     if ((this.currentFrame + 1) === this.frameRate){
-                        // player.switchSprite("hit")
+                        if (player.currentSpriteKey !== "hit") player.switchSprite("hit")
                         let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
                         player.healthBar.width = newWidth
                         player.currentHealth -= this.attackPower
-                        if (player.currentHealth === 0 ){
+                        this.currentFrame = 0
+                        this.nextAttackAnimation = this.selectRandomAttackAnimation(["attack1", "attack2", "attack3", "runAttackRight"])
+                        if (player.currentHealth <= 0 ){
                             player.isDead = true
                             return
                         }
                         player.position.x += 50
                     }
+                } else {
+                    if (this.currentSpriteKey !== "runRight") this.switchSprite('runRight')
+                        this.lastDirection = "right"
+                        this.attackBox = this.attackBoxRight
+                        this.velocity.x = 3
                 }
+
             }
         } else {
             this.alerted = false
         }
     }
 
-    takeHit({player}){
-        this.switchSprite("hurtLeft")
-        let newWidth = (this.healthBar.width / this.health) * (this.health - player.attackPower)
-        this.healthBar.width = newWidth
-        this.currentHealth -= player.attackPower
-        if (this.currentHealth === 0) {
-            this.isDead = true
-            if (this.lastDirection === "left" ) {
-                this.switchSprite("deadLeft")
-            } else {
-                this.switchSprite("dead")
-
-            }
-            this.switchSprite("dead")
-        }
-        if (this.position.x > this.position.x) {
-            this.position.x += -30
-        } else {
-            this.position.x += 30
-        }
-        this.isHit = false
-    }
-
+    /**
+     * As the entity moves, its detection area also updates.
+     */
     updateDetectionArea() {
         this.detectionArea = {
             position:{
@@ -170,7 +173,9 @@ export class WhiteWerewolf extends Entity {
         }
     }
 
-
+    /**
+     * As the entity moves, its attackbox both left and right updates
+     */
     updateAttackBox() {
         this.attackBoxLeft = {
             position: {

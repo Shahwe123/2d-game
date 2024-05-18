@@ -1,13 +1,13 @@
 const path = require("path");
+const common = require("./webpack.common")
+const { merge } = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
-module.exports = {
+
+module.exports = merge(common, {
     mode:"development",
-    entry: {
-        bundle: path.resolve(__dirname, 'src/index.js'),
-    },
     output: {
-        filename: '[name].[contenthash].js',
+        filename: 'main.js',
         path: path.resolve(__dirname, 'dist'),
         clean: true,
     },
@@ -27,25 +27,11 @@ module.exports = {
         hot: true,
     },
     module: {
-        rules: [
+        rules:[
             {
-                test: /\.html$/,
-                use: ["html-loader"]
-            },
-            {
-                test: /\.(svg|png|jpg|gif)$/,
-                use: {
-                  loader: "file-loader",
-                  options: {
-                    name: "[name].[hash].[ext]",
-                    outputPath: "imgs"
-                  }
-                }
-            },
-            {
-            test: /\.css$/i,
+            test: /\.css$/,
             use: ["style-loader", "css-loader"],
             }
         ]
     }
-}
+})

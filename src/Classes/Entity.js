@@ -1,4 +1,5 @@
 import { collison } from "../utils"
+import { HealthKit } from "./Collectibles/HealthKit"
 /**
  * Represents any moving character, player or enemy
  *
@@ -11,6 +12,7 @@ export class Entity {
         this.animations = animations
         this.lastDirection = 'left'
         this.currentSpriteKey = "idleLeft"
+        this.boss = false
         this.sprite = new Image()
         this.sprite.onload = () => {
             this.height = this.sprite.height
@@ -22,6 +24,7 @@ export class Entity {
             const image = new Image()
             image.src = this.animations[key].src
             this.animations[key].image = image
+
         }
         this.hitbox = {
             position: {
@@ -31,6 +34,7 @@ export class Entity {
             width: 10,
             height:10
         }
+        this.currentFrame
         this.health = 0
         this.currentHealth = 0
         this.isDead = false
@@ -44,13 +48,13 @@ export class Entity {
      */
     switchSprite(key){
         //TODO: if attackiong need to let animation finish before moving on
-        if (this.currentSpriteKey.includes('attack') && this.currentFrame < this.frameRate - 1){
+        if (this.currentSpriteKey === ('attack2') && this.currentFrame < this.animations['attack2'].frameRate - 1){
             return
         }
         if (this.isTimeOutOn) {
             return
         }
-
+        this.currentFrame = 0
         if (this.sprite === this.animations[key].image || !this.loaded) return
         if (this.lastDirection == 'right') {
             this.currentAvatarPosition = this.avatarPositionRight
@@ -61,6 +65,49 @@ export class Entity {
         this.currentSpriteKey = key
         this.frameBuffer  = this.animations[key].frameBuffer
         this.frameRate = this.animations[key].frameRate
+    }
+
+    /**
+     *
+     * Used for enemy entities, if an enemy is hit by the player, health is removed based
+     * on the player' power level, if the enemy reaches 0 health dies and drops a collectible
+     *
+     * @param {player} param0
+     * @param {collectibles} param1
+     * @returns
+     */
+    takeHit({player, collectibles}){
+        if (!player.isAttacking) {
+            return
+        }
+
+        if (this.lastDirection === "left") {
+
+            if (this.currentSpriteKey !== "hurtLeft") this.switchSprite("hurtLeft")
+        } else {
+            if (this.currentSpriteKey !== "hurt") this.switchSprite("hurt")
+
+        }
+        let newWidth = (this.healthBar.width / this.health) * (this.health - player.attackPower)
+        this.healthBar.width = newWidth
+        this.currentHealth -= player.attackPower
+        if (this.currentHealth <= 0) {
+            this.isDead = true
+            if (this.lastDirection === "left" ) {
+                if (this.currentSpriteKey !== "deadLeft") this.switchSprite("deadLeft")
+            } else {
+                if (this.currentSpriteKey !== "dead") this.switchSprite("dead")
+            }
+            let id = (collectibles.length === 0 ? collectibles.length: collectibles.length + 1)
+            collectibles.push(new HealthKit({position: this.hitbox.position, mapKey: this.currentMapKey, id}))
+            // TODO: when more collectibles are created, the drops should be randomised
+        }
+        if (this.position.x > player.position.x) {
+            this.position.x += 5
+        } else {
+            this.position.x += -5
+        }
+        this.isHit = false
     }
 
     /**
@@ -93,13 +140,16 @@ export class Entity {
      */
     updateHealthBarPosition() {
         this.originalHealthBarWidth  = this.hitbox.width
-
+        let newWidth = (this.originalHealthBarWidth / this.health) * this.currentHealth
+        if (newWidth < 0) {
+            newWidth = 0
+        }
         this.healthBar = {
             position: {
                 x: this.hitbox.position.x,
-                y: this.hitbox.position.y - 18
+                y: this.hitbox.position.y - 25
             },
-            width: (this.originalHealthBarWidth / this.health) * this.currentHealth,
+            width: newWidth,
             height: 5
         }
     }
@@ -110,17 +160,10 @@ export class Entity {
      */
     draw({canvasContext}) {
         if (!this.sprite) return
-        if (this.isDead && this.type != "Player") {
-            if (this.lastDirection === "left" ) {
-                this.switchSprite("deadLeft")
-            } else {
-                this.switchSprite("dead")
-            }
-        }
         let cropbox = {}
 
         // used for animations that have been inverted
-        if (this.currentSpriteKey.includes("Left")&& (this.type === "WhiteWerewolf" || this.type === "Skeleton" || this.type === "Goblin")) {
+        if (this.currentSpriteKey.includes("Left") && (this.type === "WhiteWerewolf" || this.type === "Skeleton" || this.type === "Goblin" || this.type === "Player" || this.type === "Cthulu")) {
             cropbox = {
                position: {
                    x:(this.animations[this.currentSpriteKey].frameRate - 1 - this.currentFrame) * (this.sprite.width / this.animations[this.currentSpriteKey].frameRate),
@@ -128,7 +171,7 @@ export class Entity {
                },
                width:this.sprite.width / this.animations[this.currentSpriteKey].frameRate,
                height:this.sprite.height
-        }
+            }
         } else {
             cropbox = {
                position: {
@@ -139,7 +182,6 @@ export class Entity {
                height:this.sprite.height
             }
         }
-
         canvasContext.drawImage(
             this.sprite,
             cropbox.position.x,
@@ -148,7 +190,7 @@ export class Entity {
             cropbox.height,
             this.position.x,
             this.position.y,
-            this.width,
+            this.width ,
             this.height
         )
     }
@@ -163,7 +205,7 @@ export class Entity {
      * @param  player - player entity used for entity detection
      *
      */
-    update({canvasContext, currentMapCollisions, player}) {
+    update({canvasContext, currentMapCollisions, player, collectibles}) {
         this.updateFrames()
         this.updateHitbox()
         this.updateAttackBox()
@@ -171,12 +213,15 @@ export class Entity {
         this.updateDetectionArea()
 
         canvasContext.fillStyle = "red"
-        canvasContext.fillRect(this.healthBar.position.x, this.healthBar.position.y, this.healthBar.width, this.healthBar.height)
+        // Boss entities have a larger healthbar
+        if (!this.boss) canvasContext.fillRect(this.healthBar.position.x, this.healthBar.position.y, this.healthBar.width, this.healthBar.height)
 
         // if (this.type !== "Player") {
         this.checkForPlayerDetection({player})
         // }
 
+        // If an entity (enemy) is not alerted, allows for roaming.
+        // if (this.alerted === false && this.type !== "Player") {
         if (this.alerted === false && this.type !== "Player") {
             this.roaming()
             this.attackBox = (this.roamDirection === "left"? this.attackBoxLeft: this.attackBoxRight)
@@ -249,8 +294,6 @@ export class Entity {
 
     /**
      * Updates the current frame based on the framebuffer to slow down the animation.
-     *
-     *
      */
     updateFrames() {
         // prevents death animation from running more than once
@@ -295,22 +338,33 @@ export class Entity {
         if (this.roamDirection  === "left") {
             // this.switchSprite("walkLeft")
             if ("walkLeft" in this.animations){
-                this.switchSprite("walkLeft")
+                if (this.currentSpriteKey !== "walkLeft") this.switchSprite("walkLeft")
                 this.velocity.x = -0.25
             } else {
-                this.switchSprite("runLeft")
+                if (this.currentSpriteKey !== "runLeft") this.switchSprite("runLeft")
                 this.velocity.x = -1.5
             }
 
         } else if (this.roamDirection === "right") {
             if ("walkRight" in this.animations){
-                this.switchSprite("walkRight")
+                if (this.currentSpriteKey !== "walkRight") this.switchSprite("walkRight")
                 this.velocity.x = 0.25
             } else {
-                this.switchSprite("runRight")
+                if (this.currentSpriteKey !== "runRight") this.switchSprite("runRight")
                 this.velocity.x = 1.5
             }
         }
 
+    }
+
+    /**
+     *
+     * Used to randomise an entities attack animation
+     *
+     * @param animationKeys array of strings - an array of animation keys to return on random
+     * @returns key (string) - animation key
+     */
+    selectRandomAttackAnimation(animationKeys) {
+        return animationKeys[Math.floor(Math.random() * animationKeys.length)];
     }
 }

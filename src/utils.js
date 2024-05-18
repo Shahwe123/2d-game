@@ -15,7 +15,7 @@ function arrayMapper(array) {
 }
 
 /**
- * Creates a Collision block instance for all collision blocks
+ * Creates a Collision block instance for all collision blocks in the array
  *
  * @param   array
  * @param   collision reference - the number that represents a collision block
@@ -41,7 +41,7 @@ export function extractCollisions(array, collisionRefernce) {
 }
 
 /**
- * Detects if there is a collision between param1 and param2
+ * Detects if there is a collision between param1 (the current entity) and param2 (the block the entity is colliding with)
  *
  * @param   entity
  * @param   block
@@ -53,4 +53,19 @@ export function collison({entity, block}){
         entity.position.y <= block.position.y + block.height &&
         entity.position.x <= block.position.x + block.width &&
         entity.position.x + entity.width >= block.position.x)
+}
+/**
+ * Returns the number of dead enemies
+ *
+ * @param  enemies - array of enemies
+ * @returns deadCount - number of dead enemies
+ */
+export function noEnemiesDead(enemies) {
+    let deadCount = 0
+    enemies.forEach(enemy => {
+        if (enemy.isDead) {
+            deadCount++
+        }
+    });
+    return deadCount
 }

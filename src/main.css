@@ -1,0 +1,138 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    font-family: Briem Hand;
+    background-color: #3a4466;
+}
+
+canvas {
+    border-radius: 2px;
+}
+
+#menu {
+    width: 960px;
+    height: 640px;
+    /* display: none; */
+}
+#menu-btns {
+    display: flex;
+    flex-direction: column;
+}
+
+#single {
+    margin-left: 310px;
+    margin-top: 195px;
+    width: 340px;
+    height: 80px;
+    position: relative;
+}
+#single:hover {
+    cursor: pointer;
+    border-bottom: 5px solid black;
+    background-color: rgb(124, 89, 62);
+}
+#settings {
+    margin-left: 275px;
+    margin-top: 65px;
+    width: 400px;
+    height: 50px;
+    background-color: transparent;
+    border: none;
+    font-size: x-large;
+    font-family: Briem Hand;
+    font-weight: 800;
+}
+#settings:hover {
+    cursor: pointer;
+    border-bottom: 5px solid black;
+    background-color: rgb(124, 89, 62);
+}
+
+#levels {
+    position: relative;
+    display: none;
+    flex-direction: column;
+    margin-top: 175px;
+    margin-left: 375px;
+    font-size: x-large;
+    font-family: Briem Hand;
+    font-weight: 800;
+    list-style: none;
+}
+.levelBtn {
+    margin-top: 20px;
+    width: 150px;
+    text-align: center;
+}
+.levelBtn:hover {
+    cursor: pointer;
+    border-bottom: 5px solid black;
+    background-color: rgb(124, 89, 62);
+}
+
+#game{
+    position: relative;
+}
+
+#gameInterface {
+    display: flex;
+    /* display: none; */
+    position: absolute;
+    flex-direction: row-reverse;
+    top: 10px;
+    right: 10px;
+}
+
+
+
+#objectivesImg {
+    /* display: none; */
+    margin-top: 5px;
+}
+#objectives {
+    position: relative;
+}
+
+.hearts {
+    position: absolute;
+    right: 0px;
+}
+
+.heart {
+    margin-right: 5px;
+    margin-top: 5px;
+}
+
+@keyframe fade {
+    from {
+    opacity: 0;
+    }
+    to {
+    opacity: 1;
+    }
+}
+
+.fadeInUp-animation {
+    animation: 1.5s fade;
+  }
+
+#death {
+    position: absolute;
+    display: none;
+    opacity: 1;
+    top: 100%;
+    right: 210%;
+    width: 100px;
+    transition: opacity 3s ease-out;
+}
+
+.fadeInUp-animation {
+    animation: 1.5s fadeInUp ease-in;
+  }

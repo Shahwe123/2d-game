@@ -4,10 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2D Grid Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Briem+Hand:wght@100..900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
-<body style="background-color: black;">
-    <div>
+<body style="position: relative;">
+    <div id="menu" >
+        <img id="menuImg" style="position: absolute;"  alt="">
+        <div id="menu-btns">
+        </div>
+        <!-- //TODO: remake the menu gui buttons using css not tiled -->
+        <ul id="levels">
+            <li id="1" class="levelBtn">level 1</li>
+            <li id="2" class="levelBtn">level 2 🔒</li>
+            <li id="3" class="levelBtn">level 3 🔒</li>
+            <li id="4" class="levelBtn">level 4 🔒</li>
+            <li id="5" class="levelBtn">level 5 🔒</li>
+        </ul>
+    </div>
+    <div id="game">
         <canvas></canvas>
+        <div id="gameInterface">
+            <div id="objectives"></div>
+            <div id="hearts"></div>
+            <div class="fadeInUp-animation" id="death"></div>
+        </div>
     </div>
 </body>
 </html>
