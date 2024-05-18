@@ -1,6 +1,6 @@
 /**
  *
- * Collectibles - Represents anything that can be pick u[]
+ * Collectibles - Represents anything that can be picked up
  *
  * @param position - an object with x and y
  */
