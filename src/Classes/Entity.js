@@ -12,6 +12,7 @@ export class Entity {
         this.animations = animations
         this.lastDirection = 'left'
         this.currentSpriteKey = "idleLeft"
+        this.boss = false
         this.sprite = new Image()
         this.sprite.onload = () => {
             this.height = this.sprite.height
@@ -23,6 +24,7 @@ export class Entity {
             const image = new Image()
             image.src = this.animations[key].src
             this.animations[key].image = image
+
         }
         this.hitbox = {
             position: {
@@ -32,6 +34,7 @@ export class Entity {
             width: 10,
             height:10
         }
+        this.currentFrame
         this.health = 0
         this.currentHealth = 0
         this.isDead = false
@@ -64,10 +67,20 @@ export class Entity {
         this.frameRate = this.animations[key].frameRate
     }
 
+    /**
+     *
+     * Used for enemy entities, if an enemy is hit by the player, health is removed based
+     * on the player' power level, if the enemy reaches 0 health dies and drops a collectible
+     *
+     * @param {player} param0
+     * @param {collectibles} param1
+     * @returns
+     */
     takeHit({player, collectibles}){
         if (!player.isAttacking) {
             return
         }
+
         if (this.lastDirection === "left") {
 
             if (this.currentSpriteKey !== "hurtLeft") this.switchSprite("hurtLeft")
@@ -78,8 +91,7 @@ export class Entity {
         let newWidth = (this.healthBar.width / this.health) * (this.health - player.attackPower)
         this.healthBar.width = newWidth
         this.currentHealth -= player.attackPower
-        console.log(this.currentHealth);
-        if (this.currentHealth === 0) {
+        if (this.currentHealth <= 0) {
             this.isDead = true
             if (this.lastDirection === "left" ) {
                 if (this.currentSpriteKey !== "deadLeft") this.switchSprite("deadLeft")
@@ -88,6 +100,7 @@ export class Entity {
             }
             let id = (collectibles.length === 0 ? collectibles.length: collectibles.length + 1)
             collectibles.push(new HealthKit({position: this.hitbox.position, mapKey: this.currentMapKey, id}))
+            // TODO: when more collectibles are created, the drops should be randomised
         }
         if (this.position.x > player.position.x) {
             this.position.x += 5
@@ -127,13 +140,16 @@ export class Entity {
      */
     updateHealthBarPosition() {
         this.originalHealthBarWidth  = this.hitbox.width
-
+        let newWidth = (this.originalHealthBarWidth / this.health) * this.currentHealth
+        if (newWidth < 0) {
+            newWidth = 0
+        }
         this.healthBar = {
             position: {
                 x: this.hitbox.position.x,
-                y: this.hitbox.position.y - 18
+                y: this.hitbox.position.y - 25
             },
-            width: (this.originalHealthBarWidth / this.health) * this.currentHealth,
+            width: newWidth,
             height: 5
         }
     }
@@ -147,7 +163,7 @@ export class Entity {
         let cropbox = {}
 
         // used for animations that have been inverted
-        if (this.currentSpriteKey.includes("Left")&& (this.type === "WhiteWerewolf" || this.type === "Skeleton" || this.type === "Goblin" || this.type === "Player")) {
+        if (this.currentSpriteKey.includes("Left") && (this.type === "WhiteWerewolf" || this.type === "Skeleton" || this.type === "Goblin" || this.type === "Player" || this.type === "Cthulu")) {
             cropbox = {
                position: {
                    x:(this.animations[this.currentSpriteKey].frameRate - 1 - this.currentFrame) * (this.sprite.width / this.animations[this.currentSpriteKey].frameRate),
@@ -155,7 +171,7 @@ export class Entity {
                },
                width:this.sprite.width / this.animations[this.currentSpriteKey].frameRate,
                height:this.sprite.height
-        }
+            }
         } else {
             cropbox = {
                position: {
@@ -166,7 +182,6 @@ export class Entity {
                height:this.sprite.height
             }
         }
-
         canvasContext.drawImage(
             this.sprite,
             cropbox.position.x,
@@ -175,7 +190,7 @@ export class Entity {
             cropbox.height,
             this.position.x,
             this.position.y,
-            this.width,
+            this.width ,
             this.height
         )
     }
@@ -198,14 +213,15 @@ export class Entity {
         this.updateDetectionArea()
 
         canvasContext.fillStyle = "red"
-        canvasContext.fillRect(this.healthBar.position.x, this.healthBar.position.y, this.healthBar.width, this.healthBar.height)
-        canvasContext.fillStyle = "red"
-        canvasContext.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
+        // Boss entities have a larger healthbar
+        if (!this.boss) canvasContext.fillRect(this.healthBar.position.x, this.healthBar.position.y, this.healthBar.width, this.healthBar.height)
 
-        if (this.type !== "Player") {
-            this.checkForPlayerDetection({player})
-        }
+        // if (this.type !== "Player") {
+        this.checkForPlayerDetection({player})
+        // }
 
+        // If an entity (enemy) is not alerted, allows for roaming.
+        // if (this.alerted === false && this.type !== "Player") {
         if (this.alerted === false && this.type !== "Player") {
             this.roaming()
             this.attackBox = (this.roamDirection === "left"? this.attackBoxLeft: this.attackBoxRight)
@@ -278,8 +294,6 @@ export class Entity {
 
     /**
      * Updates the current frame based on the framebuffer to slow down the animation.
-     *
-     *
      */
     updateFrames() {
         // prevents death animation from running more than once
@@ -341,5 +355,16 @@ export class Entity {
             }
         }
 
+    }
+
+    /**
+     *
+     * Used to randomise an entities attack animation
+     *
+     * @param animationKeys array of strings - an array of animation keys to return on random
+     * @returns key (string) - animation key
+     */
+    selectRandomAttackAnimation(animationKeys) {
+        return animationKeys[Math.floor(Math.random() * animationKeys.length)];
     }
 }
