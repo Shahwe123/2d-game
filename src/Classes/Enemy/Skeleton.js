@@ -51,7 +51,7 @@ export class Skeleton extends Entity {
 
         this.health = 50
         this.currentHealth = 50
-        this.attackPower = 5
+        this.attackPower = 45
     }
 
     /**
@@ -94,7 +94,8 @@ export class Skeleton extends Entity {
                         let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
                         player.healthBar.width = newWidth
                         player.currentHealth -= this.attackPower
-                        if (player.currentHealth === 0 ){
+                        this.currentFrame = 0
+                        if (player.currentHealth <= 0 ){
                             player.isDead = true
                             return
                         }
@@ -117,7 +118,8 @@ export class Skeleton extends Entity {
                         let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
                         player.healthBar.width = newWidth
                         player.currentHealth -= this.attackPower
-                        if (player.currentHealth === 0 ){
+                        this.currentFrame = 0
+                        if (player.currentHealth <= 0 ){
                             player.isDead = true
                             return
                         }
@@ -135,6 +137,9 @@ export class Skeleton extends Entity {
         }
     }
 
+    /**
+     * As the entity moves, its detection area also updates.
+     */
     updateDetectionArea() {
         this.detectionArea = {
             position:{
@@ -146,6 +151,9 @@ export class Skeleton extends Entity {
         }
     }
 
+    /**
+     * As the entity moves, its attackbox both left and right updates
+     */
     updateAttackBox() {
         this.attackBoxLeft = {
             position: {

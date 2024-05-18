@@ -1,6 +1,5 @@
 import { goblinAnimations } from "../../assets/Enemies/Goblin/imageExports"
 import { collison } from "../../utils"
-import { HealthKit } from "../Collectibles/HealthKit"
 import { Entity } from "../Entity"
 /**
  *
@@ -52,7 +51,7 @@ export class Goblin extends Entity {
 
         this.health = 50
         this.currentHealth = 50
-        this.attackPower = 5
+        this.attackPower = 15
     }
 
     /**
@@ -95,7 +94,8 @@ export class Goblin extends Entity {
                         let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
                         player.healthBar.width = newWidth
                         player.currentHealth -= this.attackPower
-                        if (player.currentHealth === 0 ){
+                        this.currentFrame = 0
+                        if (player.currentHealth <= 0 ){
                             player.isDead = true
                             return
                         }
@@ -107,7 +107,7 @@ export class Goblin extends Entity {
                     if (this.currentSpriteKey !== "runLeft") this.switchSprite('runLeft')
                         this.lastDirection = "left"
                         this.attackBox = this.attackBoxLeft
-                        this.velocity.x = -1.5
+                        this.velocity.x = -3.5
                 }
 
                 // if player is to the rigth
@@ -122,7 +122,8 @@ export class Goblin extends Entity {
                         let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
                         player.healthBar.width = newWidth
                         player.currentHealth -= this.attackPower
-                        if (player.currentHealth === 0 ){
+                        this.currentFrame = 0
+                        if (player.currentHealth <= 0 ){
                             player.isDead = true
                             return
                         }
@@ -132,7 +133,7 @@ export class Goblin extends Entity {
                     if (this.currentSpriteKey !== "runRight") this.switchSprite('runRight')
                         this.lastDirection = "right"
                         this.attackBox = this.attackBoxRight
-                        this.velocity.x = 1.5
+                        this.velocity.x = 3.5
                 }
             }
         } else {
@@ -140,6 +141,9 @@ export class Goblin extends Entity {
         }
     }
 
+    /**
+     * As the entity moves, its detection area also updates.
+     */
     updateDetectionArea() {
         this.detectionArea = {
             position:{
@@ -150,7 +154,9 @@ export class Goblin extends Entity {
             height:this.avatarHeight
         }
     }
-
+    /**
+     * As the entity moves, its attackbox both left and right updates
+     */
     updateAttackBox() {
         this.attackBoxLeft = {
             position: {
