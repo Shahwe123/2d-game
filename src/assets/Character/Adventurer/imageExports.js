@@ -11,6 +11,9 @@ import deathSpriteSrc from './Death.png'
 import attack1SpriteSrc from './Attack1.png'
 import attack2SpriteSrc from './Attack2.png'
 import attack3SpriteSrc from './Attack3.png'
+import attack1LeftSpriteSrc from './Attack1Left.png'
+import attack2LeftSpriteSrc from './Attack2Left.png'
+import attack3LeftSpriteSrc from './Attack3Left.png'
 
 export const mainPlayerAnimationsKing = {
     idleRight: {
@@ -75,6 +78,21 @@ export const mainPlayerAnimationsKing = {
     },
     attack3: {
         src: attack3SpriteSrc,
+        frameRate: 4,
+        frameBuffer : 4
+    },
+    attack1Left: {
+        src: attack1LeftSpriteSrc,
+        frameRate: 4,
+        frameBuffer : 4
+    },
+    attack2Left: {
+        src: attack2LeftSpriteSrc,
+        frameRate: 4,
+        frameBuffer : 4
+    },
+    attack3Left: {
+        src: attack3LeftSpriteSrc,
         frameRate: 4,
         frameBuffer : 4
     },

@@ -53,11 +53,11 @@ export const goblinAnimations = {
     attack:{
         src:AttackSpriteSrc,
         frameRate:8,
-        frameBuffer:5,
+        frameBuffer:2,
     },
     attackLeft:{
         src:AttackLeftSpriteSrc,
         frameRate:8,
-        frameBuffer:5,
+        frameBuffer:2,
     },
 }
