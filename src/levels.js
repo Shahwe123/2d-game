@@ -4,17 +4,24 @@ import { Background } from "./Classes/Background"
 import lvl1StartMapSrc from './assets/Map/LevelOne/Lvl1MainMap.png'
 import lvl1LeftMapSrc from './assets/Map/LevelOne/Lvl1LeftMap.png'
 import lvl1RightMapSrc from './assets/Map/LevelOne/Lvl1RightMap.png'
-import lvl1BottomMapSrc from './assets/Map/LevelOne/Lvl1BottomMap.png'
+import lvl1BossMapSrc from './assets/Map/LevelOne/Lvl1BottomMap.png'
 import { WhiteWerewolf } from "./Classes/Enemy/WhiteWerewolf"
 import { Skeleton } from "./Classes/Enemy/Skeleton"
 import { Goblin } from "./Classes/Enemy/Goblin"
+import { Cthulu } from "./Classes/Enemy/Cthulu"
 
+/**
+ * Defines a levels map structures.
+ *  - Which map should be displayed if the player reaches the far left, right,top, or bottom of a map
+ *  - Collision Blocks preventing player from going out of bounds
+ *  - Enemies for each map
+ */
 const levelOneMapStructure = {
     startMap:{
         src: lvl1StartMapSrc,
         left: "leftMap",
         right: "rightMap",
-        bottom: "bottomMap",
+        bottom: "bossMap",
         top:"",
         collisionBlocksArray: collisions.lvl1StartMapCollisions,
         newPlayerPositionRight: {
@@ -121,22 +128,32 @@ const levelOneMapStructure = {
             }
         ]
     },
-    bottomMap:{
-        src:lvl1BottomMapSrc,
+    bossMap:{
+        src:lvl1BossMapSrc,
         left: "bottomLeftMap",
         right: "bottomRightMap",
         bottom:"" ,
         top:"startMap",
-        collisionBlocksArray: collisions.lvl1BottomMapCollisions,
+        collisionBlocksArray: collisions.lvl1BossMapCollisions,
         newPlayerPositionRight: {
-            x:0,
-            y:0
+            x:40,
+            y:40
         },
         newPlayerPositionLeft: {
-            x:0,
-            y:0
+            x:40,
+            y:40
         },
-        enemies: []
+        enemies: [{
+            type: "Cthulu",
+            position: {
+                x:280,
+                y:340
+            },
+            roamingPosition: {
+                leftX: 600.99,
+                rightX: 700.99,
+            }
+        }]
     },
     bottomRightMap:{
         src:"",
@@ -175,8 +192,17 @@ const levelOneMapStructure = {
 
 }
 
+
+/**
+ * Contains the relevant data for each level
+ */
 export let levels = {
     1:{
+        /**
+         * Returns data on the first level
+         *
+         * @returns returns an object {collisions, map, enemies}
+         */
         init: () => {
 
             // Create a background
@@ -197,6 +223,15 @@ export let levels = {
                 enemies
             }
         },
+        /**
+         *
+         * Changes the map instance depending on direction
+         *
+         * @param {direction} param0 - changes the map based on this direction
+         * @param {currentMapKey} param1 - the new map is decided based on the left,right,top,bottom of the current map
+         * @param {currentPlayerPosition} param2 - used to maintain the player's y position if jumping or falling
+         * @returns returns an object {collisions, newMap, newPlayerPosition}
+         */
         changeMap: ({direction, currentMapKey, currentPlayerPosition}) => {
             let newKey
             let newPlayerPosition = {
@@ -242,7 +277,7 @@ export let levels = {
 }
 
 /**
- * Creates an array of enemy instances
+ * Creates an array of enemy instances for the current level
  *
  * @param   levelStructure - contains background data (collisions, enemies)
  * @returns enemies - array of enemies for that whole level
@@ -257,6 +292,8 @@ function createEnemies({levelStructure}) {
                 enemies.push(new Skeleton({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition}))
             } else if (enemy.type === "Goblin") {
                 enemies.push(new Goblin({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition}))
+            } else if (enemy.type === "Cthulu") {
+                enemies.push(new Cthulu({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition}))
             }
         });
     }
