@@ -15,7 +15,7 @@ function arrayMapper(array) {
 }
 
 /**
- * Creates a Collision block instance for all collision blocks
+ * Creates a Collision block instance for all collision blocks in the array
  *
  * @param   array
  * @param   collision reference - the number that represents a collision block
@@ -41,7 +41,7 @@ export function extractCollisions(array, collisionRefernce) {
 }
 
 /**
- * Detects if there is a collision between param1 and param2
+ * Detects if there is a collision between param1 (the current entity) and param2 (the block the entity is colliding with)
  *
  * @param   entity
  * @param   block
