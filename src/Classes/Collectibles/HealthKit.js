@@ -5,6 +5,7 @@ export class HealthKit extends Collectible {
     constructor({position, mapKey, id}) {
         super({position, imageSrc: healthBoxSrc, id})
         this.healingCapacity = 100
+        this.type = "healthKit"
         this.width = 32
         this.height = 32
         this.mapKey = mapKey
