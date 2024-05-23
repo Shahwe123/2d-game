@@ -81,12 +81,9 @@ export class Player extends Entity {
         this.didCollectCollectables({collectibles})
         canvasContext.fillStyle = "red"
         canvasContext.fillRect(this.healthBar.position.x, this.healthBar.position.y, this.healthBar.width, this.healthBar.height)
-        canvasContext.fillStyle = "rgb(173,216,230)"
+        canvasContext.fillStyle = "rgba(0,0,230,0.7)"
         canvasContext.fillRect(this.staminaBar.position.x, this.staminaBar.position.y, this.staminaBar.width, this.staminaBar.height)
 
-
-        // canvasContext.fillStyle = "rgba(0,255,0,0.4)"
-        // canvasContext.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
         this.regenerateStamina()
 
         this.draw({canvasContext})
@@ -144,6 +141,7 @@ export class Player extends Entity {
             // TODO: still a little glitchy, sometimes does not respond
             if (enemy.currentMapKey === currentMapKey && collison({entity: this.attackBox, block: enemy.hitbox}) ){
                 enemy.isHit = true
+                console.log(enemy.currentHealth);
                 enemy.takeHit({player:this, collectibles})
                 this.currentFrame = 0
                 enemy.isHit = false
@@ -200,6 +198,7 @@ export class Player extends Entity {
         this.powerupDuration += 10 * (1/60)
         if (this.powerupDuration === 250) {
             this.attackPower -= 25
+
         }
     }
 
