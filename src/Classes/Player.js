@@ -48,7 +48,7 @@ export class Player extends Entity {
         this.currentHealth = 300
         this.isDead = false
         this.isAttacking = false
-        this.attackPower = 15
+        this.attackPower = 50
         this.stamina = 100
         this.maxStamina = 100
         this.attackStaminaCost = 20
@@ -56,6 +56,8 @@ export class Player extends Entity {
         this.cooldownTime = 5000
         this.regenerationRate = 10
         this.nextAttackAnimation
+        this.isPoweredUp = false // for any collectibles that can be stored
+        this.powerupDuration = 0
     }
 
 
@@ -189,9 +191,16 @@ export class Player extends Entity {
             if (collison({entity: this.hitbox, block: collectible}) && collectible.isPickedUp === false) {
                 collectible.isPickedUp = true
                 collectible.update({player:this})
+                if (collectible.type === "powerup") {
+                    this.isPoweredUp = true
+                }
             }
         });
-
+        // TODO: take away magic numbers
+        this.powerupDuration += 10 * (1/60)
+        if (this.powerupDuration === 250) {
+            this.attackPower -= 25
+        }
     }
 
     /**
