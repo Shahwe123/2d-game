@@ -42,21 +42,25 @@ const keys = {
     }
 }
 
-let level = 1
-const player = new Player({position: {x:10,y:400}})
+let level
+const player = new Player({position: {x:0,y:0}})
 let map
 let currentMapCollisions
 let enemies = []
+let objectives
+let noObjectives // number of objectives
+let objectivesCompleted = 0
 let enemyKillCount = 0
 let enemyKillTarget
 let collectibles = []
-let objectivesCompleted = false
+// let objectivesCompleted = false
 let lives = 3
 let isRunning = true
 let bossHealth = 0
 let bossTotalHealth = 0
 let bossGameInterface = false
 let trapLaid = false
+let objectivesLaid = false
 
 
 function animate() {
@@ -64,41 +68,60 @@ function animate() {
 
     map.update({canvasContext})
 
-    // currentMapCollisions.forEach(element => {
-    //     element.draw({canvasContext})
-    // });
+    currentMapCollisions.forEach(element => {
+        element.draw({canvasContext})
+    });
 
     // Calls update for all enemies in the current map and checks and updates the no.of enemies killed
     enemies.forEach(enemy => {
         if (enemy.currentMapKey === map.key) {
             enemy.update({canvasContext, currentMapCollisions, player, collectibles})
 
-            // Updates the current objectives
-            if (!objectivesCompleted) {
-                enemyKillCount = noEnemiesDead(enemies)
-                document.getElementById("enemiesDead").textContent =  "Targets Eliminated: "+ enemyKillCount + " / " + enemyKillTarget
-                if (enemyKillCount === enemyKillTarget) {
-                    objectivesCompleted = true
-                }
-            }
-
-            // Removes three collision blocks
-            if (objectivesCompleted && !trapLaid) {
-                if (map.key === "startMap") {
-                    // removea collision blocks with position x 544 576 608
-                    currentMapCollisions.splice(41, 3)
-                    console.log(currentMapCollisions);
-                    trapLaid = true
-                }
-            }
-
             // Updates the bosses health bar content
             if (map.key === "bossMap") {
                 bossHealth = enemy.currentHealth
                 bossTotalHealth = enemy.health
+
+                if (bossHealth === 0) {
+                    console.log("you win");
+                    // TODO: show level passed screen, then put a btn to say to continue to level 2 or level + 1
+                }
             }
         }
     })
+
+    if (!objectivesLaid) {
+        objectives.forEach(objective => {
+            if (objective.type === "enemiesKilled") {
+                // put this code inside createobjectcontent
+                const li = document.createElement("li")
+                li.id = "enemiesDead"
+                li.style.listStyle = "none"
+                li.textContent = "Targets Eliminated: "+ enemyKillCount + " / " + objective.goal
+                dropdownObjectiveList.appendChild(li)
+            }
+        });
+        objectivesLaid = true
+    } else if (objectivesCompleted != noObjectives) {
+        objectives.forEach(objective => {
+            if (!objective.goalAchieved && objective.type === "enemiesKilled") {
+                document.getElementById("enemiesDead").textContent = objective.checkProgess(enemies)
+                if (objective.goalAchieved) {
+                    objectivesCompleted += 1
+                }
+            }
+        });
+    } else {
+        // means all objectives have been achieved
+        if (!trapLaid) {
+            if (map.key === "startMap") {
+                // removea collision blocks with position x 544 576 608
+                currentMapCollisions.splice(41, 3)
+                trapLaid = true
+            }
+            // TODO: create an li to add to objectives find boss
+        }
+    }
 
     // if the player has entered the boss battle creates and appends the
     // the health bar the game interface
@@ -121,6 +144,10 @@ function animate() {
     if (bossGameInterface) {
         bossHealthBar.textContent = bossHealth + " / " + bossTotalHealth
     }
+
+    //TODO: if bosses health reaches zero, level completed,
+    // if game is runnning fade to level 2
+    // else unlock level 2 for gamemenu
 
     player.update({canvas, canvasContext, currentMapCollisions, enemies, collectibles, currentMapKey:map.key})
 
@@ -150,7 +177,6 @@ function animate() {
             collectible.draw({canvasContext})
         }
     });
-
 
     if (!player.isDead) {
         player.velocity.x = 0
@@ -244,10 +270,17 @@ function animate() {
     }
 }
 // initialises the map, enemies and collisions based on the current level , currently used for debugging
+level = 2
 let levelInitResults = levels[level].init()
 map = levelInitResults['map']
 currentMapCollisions = levelInitResults['collisions']
+
 enemies = levelInitResults['enemies']
+objectives = levelInitResults['objectives']
+noObjectives = objectives.length;
+let startPosition = levelInitResults['startPosition']
+player.position.x = startPosition.x
+player.position.y = startPosition.y
 
 // displays the players lives based on the lives variable
 const heartsDiv = document.getElementById("hearts")
@@ -263,21 +296,9 @@ for (let i = 0; i < lives; i++) {
 const dropdownObjectiveList = document.createElement("ul")
 // dropdownObjectiveList.style.display = "none"
 dropdownObjectiveList.style.position = "absolute"
+dropdownObjectiveList.id = "objectivesLists"
 dropdownObjectiveList.style.top = "45px"
 dropdownObjectiveList.style.left = "20px"
-
-
-// loops the the current levels objective and creates an li and appends the objectslist
-// TODO: put into a util fuction to use whne changing levels.
-let currentLevelObjectivesList = levels[level].objectives
-currentLevelObjectivesList.forEach(objective => {
-    const li = document.createElement("li")
-    li.id = "enemiesDead"
-    enemyKillTarget = objective["eliminateTargets"]
-    li.style.listStyle = "none"
-    li.textContent = "Targets Eliminated: "+ enemyKillCount + " / " + enemyKillTarget
-    dropdownObjectiveList.appendChild(li)
-});
 
 // the background image for objectives
 const objectivesBackgroundImg = document.createElement("img")
@@ -299,35 +320,44 @@ const bossHealthBar = document.createElement("div")
 animate()
 
 // Handles pressing the single btn in the game menu on click and changed to the levels available
-// const singleBtn = document.createElement("img")
-// singleBtn.src = SingleBtnPng
-// singleBtn.id = "single"
-// document.getElementById("menu-btns").appendChild(singleBtn)
+const singleBtn = document.createElement("img")
+singleBtn.src = SingleBtnPng
+singleBtn.id = "single"
+document.getElementById("menu-btns").appendChild(singleBtn)
 
-// singleBtn.addEventListener('click', (e) => {
-//     document.getElementById("menu-btns").style.display = "none"
-//     document.getElementById("levels").style.display = "flex"
+singleBtn.addEventListener('click', (e) => {
+    document.getElementById("menu-btns").style.display = "none"
+    document.getElementById("levels").style.display = "flex"
 
-// })
+})
 
-// // // adds an event listener to each level and if unlocked initialises and draws on the canvas
-// // // based on that level. and removes the game menu
-// const levelsBtn = document.getElementsByClassName("levelBtn")
-// Array.from(levelsBtn).forEach(function (element) {
-//     element.addEventListener('click', (e) => {
-//         /**
-//          * if locked dont do anything
-//          */
-//         let levelInitResults = levels[e.target.id].init()
-//         map = levelInitResults['map']
-//         currentMapCollisions = levelInitResults['collisions']
-//         enemies = levelInitResults['enemies']
-//         animate()
-//         document.getElementById("menu").style.display = "none"
-//         canvas.style.display = "block"
-//         document.getElementById("gameInterface").style.display = "flex"
-//     })
-// });
+// // adds an event listener to each level and if unlocked initialises and draws on the canvas
+// // based on that level. and removes the game menu
+const levelsBtn = document.getElementsByClassName("levelBtn")
+Array.from(levelsBtn).forEach(function (element) {
+    element.addEventListener('click', (e) => {
+        /**
+         * if locked dont do anything
+         */
+        level = e.target.id
+        let levelInitResults = levels[e.target.id].init()
+        map = levelInitResults['map']
+        currentMapCollisions = levelInitResults['collisions']
+        console.log(currentMapCollisions);
+        enemies = levelInitResults['enemies']
+        objectives = levelInitResults['objectives']
+        noObjectives = objectives.length;
+        let startPosition = levelInitResults['startPosition']
+        player.position.x = startPosition.x
+        player.position.y = startPosition.y
+        animate()
+        document.getElementById("objectivesImg").style.display = 'block'
+        document.getElementById("menu").style.display = "none"
+        canvas.style.display = "block"
+        document.getElementById("gameInterface").style.display = "flex"
+        //TODO: put objectives btn back on
+    })
+});
 
 
 window.addEventListener('keydown', (event) => {
