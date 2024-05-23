@@ -52,6 +52,8 @@ export class Goblin extends Entity {
         this.health = 50
         this.currentHealth = 50
         this.attackPower = 15
+        this.attackAnimationKeys = ['attack']
+        this.attackAnimationKeysLeft = ['attackLeft']
     }
 
     /**
@@ -63,10 +65,16 @@ export class Goblin extends Entity {
      */
     checkForPlayerDetection({player}) {
         if (this.isDead) {
+            if (this.lastDirection === "left") {
+                if (this.currentSpriteKey !== "deadLeft") this.switchSprite("deadLeft")
+            } else {
+
+                if (this.currentSpriteKey !== "dead") this.switchSprite("dead")
+            }
             this.velocity.x = 0
             return
         }
-        if (player.currentHealth === 0 ) {
+        if (player.currentHealth <= 0 ) {
             if (player.currentSpriteKey !== "death") player.switchSprite("death")
             if (this.lastDirection === "left") {
                 if (this.currentSpriteKey !== "idleLeft") this.switchSprite("idleLeft")
@@ -99,7 +107,6 @@ export class Goblin extends Entity {
                             player.isDead = true
                             return
                         }
-                    // player.position.x += -50
 
                     }
                 //TODO: player blokc
@@ -127,7 +134,6 @@ export class Goblin extends Entity {
                             player.isDead = true
                             return
                         }
-                    // player.position.x += 50
                     }
                 } else {
                     if (this.currentSpriteKey !== "runRight") this.switchSprite('runRight')

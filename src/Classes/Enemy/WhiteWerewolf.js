@@ -55,6 +55,8 @@ export class WhiteWerewolf extends Entity {
         this.health = 350
         this.currentHealth = 350
         this.attackPower = 50
+        this.attackAnimationKeys = ["attack1", "attack2", "attack3", "runAttackRight"]
+        this.attackAnimationKeysLeft = ["attack1Left", "attack2Left", "attack3Left", "runAttackLeft"]
     }
 
     /**
@@ -66,12 +68,18 @@ export class WhiteWerewolf extends Entity {
      */
     checkForPlayerDetection({player}) {
         if (this.isDead) {
+            if (this.lastDirection === "left") {
+                if (this.currentSpriteKey !== "deadLeft") this.switchSprite("deadLeft")
+            } else {
+
+                if (this.currentSpriteKey !== "dead") this.switchSprite("dead")
+            }
             this.velocity.x = 0
             return
         }
 
         // If the player is dead,, shows death animation and entity goes idle
-        if (player.currentHealth === 0 ) {
+        if (player.currentHealth <= 0 ) {
             if (player.currentSpriteKey !== "death") player.switchSprite("death")
             if (this.lastDirection === "left") {
                 if (this.currentSpriteKey !== "idleLeft") this.switchSprite("idleLeft")

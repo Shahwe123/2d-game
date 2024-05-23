@@ -52,6 +52,8 @@ export class Skeleton extends Entity {
         this.health = 50
         this.currentHealth = 50
         this.attackPower = 45
+        this.attackAnimationKeys = ['attack']
+        this.attackAnimationKeysLeft = ['attackLeft']
     }
 
     /**
@@ -63,6 +65,12 @@ export class Skeleton extends Entity {
      */
     checkForPlayerDetection({player}) {
         if (this.isDead) {
+            if (this.lastDirection === "left") {
+                if (this.currentSpriteKey !== "deadLeft") this.switchSprite("deadLeft")
+            } else {
+
+                if (this.currentSpriteKey !== "dead") this.switchSprite("dead")
+            }
             this.velocity.x = 0
             return
         }
@@ -104,7 +112,6 @@ export class Skeleton extends Entity {
                     if (this.currentSpriteKey !== "walkLeft") this.switchSprite('walkLeft')
                     this.lastDirection = "left"
                     this.attackBox = this.attackBoxLeft
-                    this.velocity.x = -0.25
                 }
             // // if player is to the rigth
             } else if (this.position.x < player.position.x) {
@@ -123,7 +130,6 @@ export class Skeleton extends Entity {
                             player.isDead = true
                             return
                         }
-            //             player.position.x += 50
                     }
                 } else {
                     if (this.currentSpriteKey !== "walkRight") this.switchSprite('walkRight')
@@ -133,6 +139,8 @@ export class Skeleton extends Entity {
                 }
             }
         } else {
+            // this.velocity.x = 0
+            // if (this.currentSpriteKey !== "idleRight") this.switchSprite("idleRight")
             this.alerted = false
         }
     }
