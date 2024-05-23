@@ -1,5 +1,6 @@
 import { collison } from "../utils"
 import { HealthKit } from "./Collectibles/HealthKit"
+import { Powerup } from "./Collectibles/Powerup"
 /**
  * Represents any moving character, player or enemy
  *
@@ -40,6 +41,125 @@ export class Entity {
         this.isDead = false
         this.isTimeOutOn = false
     }
+
+    // checkForPlayerDetection({player}) {
+    //     if (this.isDead) {
+    //         if (this.lastDirection === "left") {
+    //             if (this.currentSpriteKey !== "deadLeft") this.switchSprite("deadLeft")
+    //         } else {
+
+    //             if (this.currentSpriteKey !== "dead") this.switchSprite("dead")
+    //         }
+    //         this.velocity.x = 0
+    //         return
+    //     }
+
+    //     // If the player is dead,, shows death animation and entity goes idle
+    //     if (player.currentHealth === 0 ) {
+    //         if (player.currentSpriteKey !== "death") player.switchSprite("death")
+    //         if (this.lastDirection === "left") {
+    //             if (this.currentSpriteKey !== "idleLeft") this.switchSprite("idleLeft")
+    //         } else {
+
+    //             if (this.currentSpriteKey !== "idleRight") this.switchSprite("idleRight")
+    //         }
+    //         return
+    //     }
+
+    //     // Collision with detection checks if the player is within the enemies detection area
+    //     // the entity runs toward the player if detection occurs
+    //     if (!this.isHit && collison({entity: this.detectionArea, block: player})) {
+    //         this.alerted = true
+
+    //         if (this.position.x > player.position.x) {
+    //             // if the enemy reaches the player's hitbox area, it stops and attacks, otherwise keeps running
+    //             if (collison({entity: this.attackBox, block: player.hitbox})){
+    //                 this.velocity.x = 0
+
+    //                 if (this.attackAnimationKeysLeft.length > 1) {
+    //                     // Randomises the attack animation
+    //                     if (this.nextAttackAnimation) {
+    //                         if (this.currentSpriteKey !== this.nextAttackAnimation) this.switchSprite(this.nextAttackAnimation)
+    //                     } else {
+    //                         if (this.currentSpriteKey != "attack2Left") this.switchSprite("attack2Left")
+    //                     }
+    //                 } else {
+    //                     if (this.currentSpriteKey !== "attackLeft") this.switchSprite("attackLeft")
+    //                 }
+
+    //                 // if the enemies attack animation is completed, it counts as a hit
+    //                 if ((this.currentFrame + 1) === this.frameRate){
+    //                     if (player.currentSpriteKey !== "hit") player.switchSprite("hit")
+    //                         let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
+    //                         player.healthBar.width = newWidth
+    //                         player.currentHealth -= this.attackPower
+    //                         this.currentFrame = 0
+    //                         if (this.attackAnimationKeysLeft.length > 1) {
+    //                             this.nextAttackAnimation = this.selectRandomAttackAnimation(this.attackAnimationKeysLeft)
+    //                         }
+    //                         if (player.currentHealth <= 0 ){
+    //                             player.isDead = true
+    //                             return
+    //                         }
+    //                 }
+    //                 //TODO: Player Block
+    //             } else {
+    //                 ///TODO: do check if animation is either run or walk
+    //                 if ("runLeft" in this.animations){
+    //                     if (this.currentSpriteKey !== "runLeft") this.switchSprite('runLeft')
+    //                 } else {
+    //                     if (this.currentSpriteKey !== "walkLeft") this.switchSprite('walkLeft')
+    //                 }
+    //                 this.lastDirection = "left"
+    //                 this.attackBox = this.attackBoxLeft
+    //             }
+    //         }
+    //         // if player is to the rigth
+    //         else if (this.position.x < player.position.x) {
+    //             if (collison({entity: this.attackBox, block: player.hitbox})){
+    //                 this.velocity.x = 0
+    //                 if (this.attackAnimationKeys.length > 1) {
+    //                     // Randomises the attack animation
+    //                     if (this.nextAttackAnimation) {
+    //                         if (this.currentSpriteKey !== this.nextAttackAnimation) this.switchSprite(this.nextAttackAnimation)
+    //                     } else {
+    //                         if (this.currentSpriteKey != "attack2") this.switchSprite("attack2")
+    //                     }
+    //                 } else {
+    //                     if (this.currentSpriteKey !== "attack") this.switchSprite("attack")
+    //                 }
+
+    //                 if ((this.currentFrame + 1) === this.frameRate){
+    //                     if (player.currentSpriteKey !== "hit") player.switchSprite("hit")
+    //                     let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
+    //                     player.healthBar.width = newWidth
+    //                     player.currentHealth -= this.attackPower
+    //                     this.currentFrame = 0
+    //                     if (this.attackAnimationKeys.length > 1) {
+    //                         this.nextAttackAnimation = this.selectRandomAttackAnimation(this.attackAnimationKeys)
+    //                     }
+    //                     if (player.currentHealth <= 0 ){
+    //                         player.isDead = true
+    //                         return
+    //                     }
+    //                     // player.position.x += 50 //TODO: for werewolf
+    //                 }
+    //             } else {
+    //                 //TODO: do check if animation is either run or walk
+    //                 if ("runRight" in this.animations){
+    //                     if (this.currentSpriteKey !== "runRight") this.switchSprite('runRight')
+    //                 } else {
+    //                     if (this.currentSpriteKey !== "walkRight") this.switchSprite('walkRight')
+    //                 }
+    //                 this.lastDirection = "right"
+    //                 this.attackBox = this.attackBoxRight
+    //             }
+    //         }
+
+    //     } else {
+    //         this.alerted = false
+    //     }
+    // }
 
     /**
      * Changes the sprite (image file) used for the characters animation
@@ -92,6 +212,7 @@ export class Entity {
         this.healthBar.width = newWidth
         this.currentHealth -= player.attackPower
         if (this.currentHealth <= 0) {
+            this.currentHealth = 0
             this.isDead = true
             if (this.lastDirection === "left" ) {
                 if (this.currentSpriteKey !== "deadLeft") this.switchSprite("deadLeft")
@@ -99,8 +220,16 @@ export class Entity {
                 if (this.currentSpriteKey !== "dead") this.switchSprite("dead")
             }
             let id = (collectibles.length === 0 ? collectibles.length: collectibles.length + 1)
-            collectibles.push(new HealthKit({position: this.hitbox.position, mapKey: this.currentMapKey, id}))
-            // TODO: when more collectibles are created, the drops should be randomised
+
+            // health repeated to have a higher drop chance
+            let differentCollectibles = ['health', "powerup", "health", 'health']
+            const randomCollectible = differentCollectibles[Math.floor(Math.random() * differentCollectibles.length)]
+
+            if (randomCollectible === "health") {
+                collectibles.push(new HealthKit({position: this.hitbox.position, mapKey: this.currentMapKey, id}))
+            } else if (randomCollectible === "powerup") {
+                collectibles.push(new Powerup({position: this.hitbox.position, mapKey: this.currentMapKey, id}))
+            }
         }
         if (this.position.x > player.position.x) {
             this.position.x += 5
@@ -163,7 +292,7 @@ export class Entity {
         let cropbox = {}
 
         // used for animations that have been inverted
-        if (this.currentSpriteKey.includes("Left") && (this.type === "WhiteWerewolf" || this.type === "Skeleton" || this.type === "Goblin" || this.type === "Player" || this.type === "Cthulu")) {
+        if (this.currentSpriteKey.includes("Left") && (this.type === "WhiteWerewolf" || this.type === "Skeleton" || this.type === "Goblin" || this.type === "Player" || this.type === "Cthulu" || this.type === "EvilWizard" || this.type === "Mushroom")) {
             cropbox = {
                position: {
                    x:(this.animations[this.currentSpriteKey].frameRate - 1 - this.currentFrame) * (this.sprite.width / this.animations[this.currentSpriteKey].frameRate),
@@ -190,7 +319,7 @@ export class Entity {
             cropbox.height,
             this.position.x,
             this.position.y,
-            this.width ,
+            this.width,
             this.height
         )
     }
@@ -313,7 +442,7 @@ export class Entity {
      * /TODO: Upon reaching their roaming position x and y, idle for a second than continue patrol
      */
     roaming() {
-
+        if (!this.roamingPosition) return
         if (this.hitbox.position.x >= this.roamingPosition.rightX) {
             // this.velocity.x = 0
             // this.switchSprite("idleRight")
