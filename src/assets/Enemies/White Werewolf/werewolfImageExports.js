@@ -58,7 +58,7 @@ export const werewolfAnimations = {
     runAttackLeft: {
         src: RunAttackLeftSpriteSrc,
         frameRate: 7,
-        frameBuffer : 8
+        frameBuffer : 3
     },
     jump: {
         src: JumpSpriteSrc,
