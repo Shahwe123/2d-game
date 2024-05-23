@@ -72,6 +72,11 @@ export class Player extends Entity {
      */
     update({canvasContext, currentMapCollisions, enemies, collectibles, currentMapKey}) {
 
+        if (this.lastDirection === "left") {
+            this.currentAvatarPosition = this.avatarPositionLeft
+        } else {
+            this.currentAvatarPosition = this.avatarPositionRight
+        }
         // this.attack({enemies, collectibles, currentMapKey})
         this.updateFrames()
         this.draw({canvasContext})
@@ -141,7 +146,6 @@ export class Player extends Entity {
             // TODO: still a little glitchy, sometimes does not respond
             if (enemy.currentMapKey === currentMapKey && collison({entity: this.attackBox, block: enemy.hitbox}) ){
                 enemy.isHit = true
-                console.log(enemy.currentHealth);
                 enemy.takeHit({player:this, collectibles})
                 this.currentFrame = 0
                 enemy.isHit = false
