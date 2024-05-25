@@ -119,7 +119,7 @@ export class Entity {
         let cropbox = {}
 
         // used for animations that have been inverted
-        if (this.currentSpriteKey.includes("Left") && (this.type === "WhiteWerewolf" || this.type === "Skeleton" || this.type === "Goblin" || this.type === "Player" || this.type === "Cthulu" || this.type === "EvilWizard" || this.type === "Mushroom")) {
+        if (this.currentSpriteKey.includes("Left") && (this.type === "WhiteWerewolf" || this.type === "Skeleton" || this.type === "Goblin" || this.type === "Player" || this.type === "Cthulu" || this.type === "EvilWizard" || this.type === "Mushroom" || this.type === "FlyingEye")) {
             cropbox = {
                position: {
                    x:(this.animations[this.currentSpriteKey].frameRate - 1 - this.currentFrame) * (this.sprite.width / this.animations[this.currentSpriteKey].frameRate),
@@ -138,9 +138,6 @@ export class Entity {
                height:this.sprite.height
             }
         }
-
-        canvasContext.fillStyle = "rgba(0,255,0,0.4)"
-        canvasContext.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
 
         canvasContext.drawImage(
             this.sprite,
