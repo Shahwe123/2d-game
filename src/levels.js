@@ -21,9 +21,14 @@ import { Skeleton } from "./Classes/Enemy/Skeleton"
 import { Goblin } from "./Classes/Enemy/Goblin"
 import { Cthulu } from "./Classes/Enemy/Cthulu"
 import { EvilWizard } from "./Classes/Enemy/EvilWizard"
-import { ItemsCollected } from "./Classes/Objectives/ItemsCollected"
+import { CoinsCollected } from "./Classes/Objectives/CoinsCollected"
 import { EnemiesKilled } from "./Classes/Objectives/EnemiesKilled"
 import { Mushroom } from "./Classes/Enemy/Mushroom"
+
+import { enemyDetails } from "./Classes/Enemy/EnemyDetails"
+import { Entity } from "./Classes/Entity"
+import { Coin } from "./Classes/Collectibles/Coin"
+import { FlyingEye } from "./Classes/Enemy/FlyingEye"
 
 /**
  * Defines a levels map structures.
@@ -70,7 +75,8 @@ const levelOneMapStructure = {
                     rightX: 238,
                 }
             },
-        ]
+        ],
+        coins: []
 
     },
     leftMap:{
@@ -111,7 +117,8 @@ const levelOneMapStructure = {
                 rightX: 400,
             }
         },
-    ]
+        ],
+        coins: []
 
     },
     rightMap:{
@@ -141,7 +148,8 @@ const levelOneMapStructure = {
                     rightX: 700.99,
                 }
             }
-        ]
+        ],
+        coins: []
     },
     bossMap:{
         src:lvl1BossMapSrc,
@@ -168,42 +176,9 @@ const levelOneMapStructure = {
                 leftX: 600.99,
                 rightX: 700.99,
             }
-        }]
+        }],
+        coins: []
     },
-    bottomRightMap:{
-        src:"",
-        left: "bottomMap",
-        right: "",
-        bottom:"" ,
-        top:"rightMap",
-        collisionBlocksArray: collisions.lvl1LeftMapCollisions,
-        newPlayerPositionRight: {
-            x:0,
-            y:0
-        },
-        newPlayerPositionLeft: {
-            x:0,
-            y:0
-        },
-        enemies: []
-    },
-    bottomLeftMap:{
-        src:"",
-        left: "",
-        right: "bottomMap",
-        bottom:"" ,
-        top:"leftMap",
-        collisionBlocksArray: collisions.lvl1LeftMapCollisions,
-        newPlayerPositionRight: {
-            x:0,
-            y:0
-        },
-        newPlayerPositionLeft: {
-            x:0,
-            y:0
-        },
-        enemies: []
-    }
 }
 
 const levelTwoMapStructure = {
@@ -234,7 +209,8 @@ const levelTwoMapStructure = {
                     rightX: 581,
                 }
             }
-        ]
+        ],
+        coins: []
 
     },
     rightMap : {
@@ -264,12 +240,17 @@ const levelTwoMapStructure = {
             {
                 type: "EvilWizard",
                 position: {
-                    x:536,
+                    x:555,
                     y:39
                 },
                 roamingPosition: false
             },
-    ]
+        ],
+        coins: [
+            {
+                position: {x: 575, y:80}
+            }
+        ]
 
     },
     leftMap:{
@@ -287,7 +268,19 @@ const levelTwoMapStructure = {
             x:0,
             y:0
         },
-        enemies: []
+        enemies: [{
+            type: "Goblin",
+            position: {
+                x:50,
+                y:487
+            },
+            roamingPosition: false
+        }],
+        coins: [
+            {
+                position: {x: 27, y:540}
+            }
+        ]
     },
     StartTopMap:{
         src: Lvl2StartTopMapSrc,
@@ -304,7 +297,15 @@ const levelTwoMapStructure = {
             x:1,
             y:450
         },
-        enemies: []
+        enemies: [{
+            type: "Skeleton",
+            position: {
+                x:20,
+                y:23
+            },
+            roamingPosition: false
+        }],
+        coins: []
     },
     leftTopMap:{
         src: Lvl2LeftTopMapSrc,
@@ -321,7 +322,17 @@ const levelTwoMapStructure = {
             x:0,
             y:0
         },
-        enemies: []
+        enemies: [{
+            type: "EvilWizard",
+            position: {
+                x:40,
+                y:87
+            },
+            roamingPosition: false
+        }],
+        coins: [{
+            position: {x: 65, y:125}
+        }]
     },
     leftBottomMap:{
         src: Lvl2LeftBottomMapSrc,
@@ -338,7 +349,29 @@ const levelTwoMapStructure = {
             x:0,
             y:0
         },
-        enemies: []
+        enemies: [
+            {
+                type: "EvilWizard",
+                position: {
+                    x:40,
+                    y:87
+                },
+                roamingPosition: false
+            },
+            {
+                type: "Skeleton",
+                position: {
+                    x:400,
+                    y:487
+                },
+                roamingPosition: false
+            },
+        ],
+        coins: [
+            {
+                position: {x: 202, y:553}
+            }
+        ]
     },
     startBottomMap:{
         src: Lvl2StartBottomMapSrc,
@@ -355,7 +388,8 @@ const levelTwoMapStructure = {
             x:0,
             y:0
         },
-        enemies: []
+        enemies: [],
+        coins: []
     },
     rightBottomMap:{
         src: Lvl2RightBottomMapSrc,
@@ -372,7 +406,17 @@ const levelTwoMapStructure = {
             x:0,
             y:0
         },
-        enemies: []
+        enemies: [
+            {
+                type: "FlyingEye",
+                position: {
+                    x:400,
+                    y:487
+                },
+                roamingPosition: false
+            },
+        ],
+        coins: []
     },
     rightTopMap:{
         src: Lvl2RightTopMapSrc,
@@ -389,7 +433,28 @@ const levelTwoMapStructure = {
             x:0,
             y:0
         },
-        enemies: []
+        enemies: [
+            {
+                type: "WhiteWerewolf",
+                position: {
+                    x:790,
+                    y:503
+                },
+                roamingPosition: false
+            },
+            {
+                type: "WhiteWerewolf",
+                position: {
+                    x:484,
+                    y:295
+                },
+                roamingPosition: false,
+                isOnPlatform: 0,
+            },
+        ],
+        coins: [
+
+        ]
     },
 }
 
@@ -417,15 +482,17 @@ export let levels = {
             })
 
             let enemies = createEnemies({levelStructure: levelOneMapStructure})
-
             let objectives = createObjectives({"enemiesKilled": {count: 5}})
+
+            let coins = createCoins({levelStructure: levelOneMapStructure})
 
             return {
                 collisions: levelOneMapStructure.startMap.collisionBlocksArray,
                 map: background,
                 enemies,
                 objectives,
-                startPosition: {x:10, y:400}
+                startPosition: {x:10, y:400},
+                coins
             }
         },
         /**
@@ -473,6 +540,14 @@ export let levels = {
                 newPlayerPosition,
             }
         },
+        layTrap:({currentMapCollisions, currentMapKey}) => {
+            let trapSuccess = false
+            if (currentMapKey === "startMap") {
+                currentMapCollisions.splice(41, 3)
+                trapSuccess = true
+            }
+            return trapSuccess
+        },
         locked: false,
         objectives:[{
             eliminateTargets: 5,
@@ -499,14 +574,20 @@ export let levels = {
 
             let enemies = createEnemies({levelStructure: levelTwoMapStructure})
 
-            let objectives = createObjectives({"enemiesKilled": {count: 5}})
+            let objectives = createObjectives({
+                "enemiesKilled": {count: 11},
+                "coinsCollected": {count: 4}
+            })
+
+            let coins = createCoins({levelStructure: levelTwoMapStructure})
 
             return {
                 collisions: levelTwoMapStructure.startMap.collisionBlocksArray,
                 map: background,
                 enemies,
                 objectives,
-                startPosition: {x:15, y:400}
+                startPosition: {x:15, y:400},
+                coins
             }
         },
         /**
@@ -554,6 +635,14 @@ export let levels = {
                 newPlayerPosition,
             }
         },
+        layTrap:({currentMapCollisions, currentMapKey}) => {
+            let trapSuccess = false
+            if (currentMapKey === "startMap") {
+                currentMapCollisions.splice(41, 3)
+                trapSuccess = true
+            }
+            return trapSuccess
+        },
         locked: false,
         objectives:[{
             eliminateTargets: 5,
@@ -561,6 +650,8 @@ export let levels = {
         }]
     },
 }
+
+//TODO: maybe can put init and changeMap functions into one
 
 /**
  * Creates an array of enemy instances for the current level
@@ -584,6 +675,8 @@ function createEnemies({levelStructure}) {
                 enemies.push(new EvilWizard({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition}))
             } else if (enemy.type === "Mushroom") {
                 enemies.push(new Mushroom({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition}))
+            } else if (enemy.type === "FlyingEye") {
+                enemies.push(new FlyingEye({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition}))
             }
         });
     }
@@ -595,9 +688,19 @@ function createObjectives(objectivesTypes) {
     for (const key in objectivesTypes) {
         if (key === "enemiesKilled") {
             objectives.push(new EnemiesKilled({noEnemiesToKill: objectivesTypes[key].count}))
-        } else if (key === "itemsCollected") {
-            objectives.push(new ItemsCollected({noItemsToCollect: objectivesTypes[key].count}))
+        } else if (key === "coinsCollected") {
+            objectives.push(new CoinsCollected({noCoinsToCollect: objectivesTypes[key].count}))
         }
     }
     return objectives
+}
+
+function createCoins({levelStructure}) {
+    let coins = []
+    for (const key in levelStructure) {
+        levelStructure[key].coins.forEach(coin => {
+            coins.push(new Coin({position: coin.position, mapKey: key, id: coins.length}))
+        })
+    }
+    return coins
 }
