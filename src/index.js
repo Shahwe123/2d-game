@@ -9,11 +9,13 @@ import "./main.css"
 import { Player } from './Classes/Player'
 import { levels } from './levels'
 import MenuSrc from './assets/Map/Menu.png'
-import objectivesPng from "./assets/Map/objectives.png"
+import objectivesPng from "./assets/Map/objectives1.png"
 import heartPng from "./assets/Map/heart.png"
 import SingleBtnPng from "./assets/Map/SingleButton.png"
-import deathPng from "./assets/Map/dead.png"
-import { noEnemiesDead } from "./utils"
+import deathPng from "./assets/Map/DeathScreen.png"
+import objectivesBtnPng from './assets/Map/objectivesBtn.png'
+import winScreenImg from './assets/Map/winScreen.png'
+import { handleNextLevelBtn, noEnemiesDead } from "./utils"
 const canvas = document.querySelector('canvas')
 const canvasContext = canvas.getContext('2d')
 
@@ -53,14 +55,27 @@ let objectivesCompleted = 0
 let enemyKillCount = 0
 let enemyKillTarget
 let collectibles = []
+let coins
+let startPosition
 // let objectivesCompleted = false
 let lives = 3
 let isRunning = true
+let bossNotification = false
 let bossHealth = 0
 let bossTotalHealth = 0
 let bossGameInterface = false
 let trapLaid = false
 let objectivesLaid = false
+
+const enemiesDeadObjective = document.createElement("li")
+const coinsCollectedObjective = document.createElement("li")
+const objectivesElement = document.getElementById("objectives")
+const objectivesDivElement = document.getElementById("objectivesDiv")
+const gameInterfaceElement = document.getElementById("gameInterface")
+const winScreenElement = document.getElementById("winScreen")
+const deathElement = document.getElementById("death")
+const gameElement = document.getElementById("game")
+const respawnBtnElement = document.getElementById("respawnBtn")
 
 
 function animate() {
@@ -68,9 +83,9 @@ function animate() {
 
     map.update({canvasContext})
 
-    currentMapCollisions.forEach(element => {
-        element.draw({canvasContext})
-    });
+    // currentMapCollisions.forEach(element => {
+    //     element.draw({canvasContext})
+    // });
 
     // Calls update for all enemies in the current map and checks and updates the no.of enemies killed
     enemies.forEach(enemy => {
@@ -83,29 +98,48 @@ function animate() {
                 bossTotalHealth = enemy.health
 
                 if (bossHealth === 0) {
-                    console.log("you win");
-                    // TODO: show level passed screen, then put a btn to say to continue to level 2 or level + 1
+                    winScreenElement.className = "show"
+                    winScreenElement.style.display = "block"
+                    nextLvlBtn.addEventListener('click', handleNextLevelClick)
                 }
             }
         }
     })
 
+    // Place all this in an handleobjectives function //TODO:
     if (!objectivesLaid) {
         objectives.forEach(objective => {
             if (objective.type === "enemiesKilled") {
                 // put this code inside createobjectcontent
-                const li = document.createElement("li")
-                li.id = "enemiesDead"
-                li.style.listStyle = "none"
-                li.textContent = "Targets Eliminated: "+ enemyKillCount + " / " + objective.goal
-                dropdownObjectiveList.appendChild(li)
+                // const li = document.createElement("li")
+                enemiesDeadObjective.id = "enemiesDead"
+                enemiesDeadObjective.style.listStyle = "none"
+                enemiesDeadObjective.textContent = "Targets Eliminated: "+ enemyKillCount + " / " + objective.goal
+                dropdownObjectiveList.appendChild(enemiesDeadObjective)
+            } else if (objective.type === "coinsCollected") {
+                // const li = document.createElement("li")
+                coinsCollectedObjective.id = "coinsCollected"
+                coinsCollectedObjective.style.listStyle = "none"
+                coinsCollectedObjective.textContent = "Coins Collected: "+ enemyKillCount + " / " + objective.goal
+                dropdownObjectiveList.appendChild(coinsCollectedObjective)
+
             }
         });
         objectivesLaid = true
     } else if (objectivesCompleted != noObjectives) {
         objectives.forEach(objective => {
+            //TODO: if runs multiple times may +1 alawys if more than one objective
+            //TODO: for level 2 once enemeis all killed boss objective given even
+            //though coins not fully collected, last coin isnt updetedf if all
+            // enmies killed for first (sometimes - happens when levels change no clue why)
+
             if (!objective.goalAchieved && objective.type === "enemiesKilled") {
-                document.getElementById("enemiesDead").textContent = objective.checkProgess(enemies)
+                enemiesDeadObjective.textContent = objective.checkProgess(enemies)
+                if (objective.goalAchieved) {
+                    objectivesCompleted += 1
+                }
+            } else if (!objective.goalAchieved && objective.type === "coinsCollected"){
+                coinsCollectedObjective.textContent = objective.checkProgess(collectibles)
                 if (objective.goalAchieved) {
                     objectivesCompleted += 1
                 }
@@ -114,29 +148,34 @@ function animate() {
     } else {
         // means all objectives have been achieved
         if (!trapLaid) {
-            if (map.key === "startMap") {
-                // removea collision blocks with position x 544 576 608
-                currentMapCollisions.splice(41, 3)
+            // TODO: trap should be unique for each map, put inside the lvel object for level 2
+            if (level === 1 && map.key === "startMap") {
+                levels[level].layTrap({currentMapCollisions, currentMapKey: map.key})
                 trapLaid = true
+            } else if (level === 2 && map.key === "leftBottomMap") {
+                levels[level].layTrap({currentMapCollisions, currentMapKey: map.key})
+                trapLaid = true
+
             }
-            // TODO: create an li to add to objectives find boss
+
+            if (!bossNotification) {
+                const li = document.createElement("li")
+                li.textContent = "Find the boss..."
+                dropdownObjectiveList.appendChild(li)
+                objectivesElement.style.display = "block"
+                bossNotification = true
+            }
         }
     }
 
     // if the player has entered the boss battle creates and appends the
     // the health bar the game interface
     if (map.key === "bossMap" && !bossGameInterface) {
-        document.getElementById("objectives").style.display = "none"
-        bossHealthBar.style.width = "400px"
-        bossHealthBar.style.height = "20px"
-        bossHealthBar.style.backgroundColor = "red"
-        bossHealthBar.style.position = "relative"
-        bossHealthBar.style.left = "-28%"
-        bossHealthBar.style.textAlign = "center"
-        bossHealthBar.style.padding = "5px"
+        objectivesDivElement.style.display = "none"
+        objectivesBtn.style.display = "none"
         bossHealthBar.textContent = bossHealth + " / " + bossTotalHealth
 
-        document.getElementById("gameInterface").appendChild(bossHealthBar)
+        gameInterfaceElement.appendChild(bossHealthBar)
         bossGameInterface = true
     }
 
@@ -145,17 +184,18 @@ function animate() {
         bossHealthBar.textContent = bossHealth + " / " + bossTotalHealth
     }
 
-    //TODO: if bosses health reaches zero, level completed,
-    // if game is runnning fade to level 2
-    // else unlock level 2 for gamemenu
-
     player.update({canvas, canvasContext, currentMapCollisions, enemies, collectibles, currentMapKey:map.key})
 
     // conditions below checks if player has no more lives, if so, death screen pops up
     // if player still has remaining lives, removes one
+    // TODO: can move this inside player class
     if (lives === 0) {
-        document.getElementById("death").style.display = "block"
-        //TODO: maybe instead of a small block, a screen fades covering the canvas with a retry button
+        deathElement.className = "show"
+        deathElement.style.display = "block"
+        gameElement.style.display = "none"
+
+        respawnBtnElement.addEventListener('click', handleRespawn)
+        //TODO: a screen fades covering the canvas with a retry button, a smaller screen like the you won
     }
     if (player.isDead === true && lives > 0) {
         lives -= 1
@@ -178,6 +218,8 @@ function animate() {
         }
     });
 
+
+//TODO: can move inside player class
     if (!player.isDead) {
         player.velocity.x = 0
 
@@ -278,9 +320,10 @@ currentMapCollisions = levelInitResults['collisions']
 enemies = levelInitResults['enemies']
 objectives = levelInitResults['objectives']
 noObjectives = objectives.length;
-let startPosition = levelInitResults['startPosition']
+startPosition = levelInitResults['startPosition']
 player.position.x = startPosition.x
 player.position.y = startPosition.y
+collectibles = levelInitResults['coins']
 
 // displays the players lives based on the lives variable
 const heartsDiv = document.getElementById("hearts")
@@ -297,7 +340,7 @@ const dropdownObjectiveList = document.createElement("ul")
 // dropdownObjectiveList.style.display = "none"
 dropdownObjectiveList.style.position = "absolute"
 dropdownObjectiveList.id = "objectivesLists"
-dropdownObjectiveList.style.top = "45px"
+dropdownObjectiveList.style.top = "25px"
 dropdownObjectiveList.style.left = "20px"
 
 // the background image for objectives
@@ -305,16 +348,40 @@ const objectivesBackgroundImg = document.createElement("img")
 objectivesBackgroundImg.src = objectivesPng
 objectivesBackgroundImg.id = "objectivesImg"
 
-// appends the background img and objectives list to the div
-document.getElementById("objectives").appendChild(objectivesBackgroundImg)
-document.getElementById("objectives").appendChild(dropdownObjectiveList)
+// TODO: too much moving  on btn click
+const objectivesBtn = document.createElement('img')
+objectivesBtn.src = objectivesBtnPng
+objectivesBtn.id = "objectivesBtn"
+objectivesBtn.style.marginLeft = "15px"
+objectivesBtn.addEventListener('click', (e) => {
+    if (objectivesElement.style.display === "block") {
 
+        objectivesElement.style.display = "none"
+    } else {
+        objectivesElement.style.display = "block"
+    }
+})
+
+// appends the background img and objectives list to the div
+objectivesElement.appendChild(objectivesBackgroundImg)
+objectivesElement.appendChild(dropdownObjectiveList)
+objectivesDivElement.insertBefore(
+    objectivesBtn,
+    objectivesElement
+)
 // Appends the death alert img
 const deathAlert = document.createElement('img')
 deathAlert.src = deathPng
-document.getElementById("death").appendChild(deathAlert)
+deathElement.appendChild(deathAlert)
 
 const bossHealthBar = document.createElement("div")
+bossHealthBar.id = "bossHealthBar"
+
+const winScreenBackground = document.createElement('img')
+winScreenBackground.src = winScreenImg
+const nextLvlBtn = document.getElementById('nextLvlBtn')
+winScreenElement.insertBefore(winScreenBackground, nextLvlBtn)
+
 
 
 animate()
@@ -324,38 +391,37 @@ const singleBtn = document.createElement("img")
 singleBtn.src = SingleBtnPng
 singleBtn.id = "single"
 document.getElementById("menu-btns").appendChild(singleBtn)
-
 singleBtn.addEventListener('click', (e) => {
     document.getElementById("menu-btns").style.display = "none"
     document.getElementById("levels").style.display = "flex"
 
 })
 
-// // adds an event listener to each level and if unlocked initialises and draws on the canvas
-// // based on that level. and removes the game menu
+
 const levelsBtn = document.getElementsByClassName("levelBtn")
 Array.from(levelsBtn).forEach(function (element) {
     element.addEventListener('click', (e) => {
         /**
-         * if locked dont do anything
+         * if locked dont do anything// TODO: maybe implement
          */
         level = e.target.id
+
         let levelInitResults = levels[e.target.id].init()
         map = levelInitResults['map']
         currentMapCollisions = levelInitResults['collisions']
-        console.log(currentMapCollisions);
         enemies = levelInitResults['enemies']
         objectives = levelInitResults['objectives']
         noObjectives = objectives.length;
-        let startPosition = levelInitResults['startPosition']
+        startPosition = levelInitResults['startPosition']
         player.position.x = startPosition.x
         player.position.y = startPosition.y
-        animate()
+        collectibles = levelInitResults['coins']
+
         document.getElementById("objectivesImg").style.display = 'block'
         document.getElementById("menu").style.display = "none"
         canvas.style.display = "block"
-        document.getElementById("gameInterface").style.display = "flex"
-        //TODO: put objectives btn back on
+        gameInterfaceElement.style.display = "flex"
+        animate()
     })
 });
 
@@ -402,4 +468,99 @@ window.addEventListener('keyup', (event) => {
             break;
 
     }
+})
+
+
+/**
+ *
+ * Function runs when player presses the next level button
+ *
+ */
+const handleNextLevelClick = (e) => {
+
+    // resets state variables
+    gameElement.className = "hide"
+    bossNotification = false
+    bossGameInterface = false
+    trapLaid = false
+    objectivesLaid = false
+    objectivesCompleted = 0
+
+    // removes old objectives
+    while (dropdownObjectiveList.firstChild) {
+        dropdownObjectiveList.firstChild.remove()
+    }
+
+    // initialises next levels variables
+    level += 1
+    levelInitResults = levels[level].init()
+    map = levelInitResults['map']
+    currentMapCollisions = levelInitResults['collisions']
+    enemies = levelInitResults['enemies']
+    objectives = levelInitResults['objectives']
+    noObjectives = objectives.length;
+    startPosition = levelInitResults['startPosition']
+    player.position.x = startPosition.x
+    player.position.y = startPosition.y
+    collectibles = levelInitResults['coins']
+
+
+    winScreenElement.className = "hide"
+    setTimeout(function() {
+        winScreenElement.style.display = "none"
+        gameElement.className = "show"
+    }, 700)
+    objectivesDivElement.style.display = "block"
+    objectivesBtn.style.display = "block"
+    gameInterfaceElement.removeChild(bossHealthBar)
+    nextLvlBtn.removeEventListener('click', handleNextLevelClick)
+}
+
+
+/**
+ *
+ * Function runs everytime respawn button is clicked
+ *
+ */
+const handleRespawn = (e) => {
+    // resets state variables
+    player.isDead = false
+    player.currentHealth = player.health
+    lives = 3
+    objectivesCompleted = 0
+    for (let i = 0; i < lives; i++) {
+        const heart = document.createElement("img")
+        heart.className = "heart"
+        heart.src = heartPng
+        heartsDiv.appendChild(heart)
+    }
+
+    // reinitialises the current levels variables
+    // TODO:  may not need map, noObjectives,
+    levelInitResults = levels[level].init()
+    map = levelInitResults['map']
+    currentMapCollisions = levelInitResults['collisions']
+    enemies = levelInitResults['enemies']
+    console.log(enemies);
+    objectives = levelInitResults['objectives']
+    noObjectives = objectives.length;
+    startPosition = levelInitResults['startPosition']
+    player.position.x = startPosition.x
+    player.position.y = startPosition.y
+    collectibles = levelInitResults['coins']
+    respawnBtnElement.removeEventListener('click', handleRespawn)
+    deathElement.className = "hide"
+    setTimeout(function() {
+        deathElement.style.display = "none"
+        gameElement.className = "show"
+        gameElement.style.display = "block"
+    }, 700)
+}
+
+let docTitle = document.title
+window.addEventListener('blur', (e) => {
+    document.title = "Come back 😔"
+})
+window.addEventListener('focus', (e) => {
+    document.title = docTitle
 })
