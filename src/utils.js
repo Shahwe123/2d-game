@@ -70,4 +70,22 @@ export function noEnemiesDead(enemies) {
     });
     return deadCount
 }
+/**
+ * Returns the number of collected coins
+ *
+ * @param  enemies - array of coin
+ * @returns deadCount - number of dead enemies
+ */
+export function noCollectedCoins(collectibles) {
+    let coinsCollected = 0
+    collectibles.forEach(collectible => {
+        if (collectible.type === "coin" && collectible.isPickedUp) {
+            coinsCollected++
+        }
+    });
+    return coinsCollected
+}
 
+export const handleNextLevelBtn = (level) => {
+    return 2
+}
