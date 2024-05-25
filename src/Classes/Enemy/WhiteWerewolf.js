@@ -66,10 +66,10 @@ export class WhiteWerewolf extends Enemy {
     updateDetectionArea() {
         this.detectionArea = {
             position:{
-                x:this.hitbox.position.x - 250,
+                x:this.hitbox.position.x  -85,
                 y:this.hitbox.position.y
             },
-            width:575,
+            width:250,
             height:this.avatarHeight
         }
     }
