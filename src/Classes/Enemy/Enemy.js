@@ -6,6 +6,9 @@ import { Entity } from "../Entity";
 export class Enemy extends Entity {
     constructor({position, animations}) {
         super({position, animations})
+        this.startPosition = position.x
+        // this.isOnPlatform
+        // if variable false enemy  not restricted, if has an object, or x positoin , entity cannot go past that
     }
 
     /**
@@ -90,6 +93,9 @@ export class Enemy extends Entity {
             this.roaming()
             this.attackBox = (this.roamDirection === "left"? this.attackBoxLeft: this.attackBoxRight)
         }
+
+        // canvasContext.fillStyle = "rgba(0,255,0,0.4)"
+        // canvasContext.fillRect(this.detectionArea.position.x, this.detectionArea.position.y, this.detectionArea.width, this.detectionArea.height)
 
         this.draw({canvasContext})
         this.position.x += this.velocity.x
@@ -176,10 +182,21 @@ export class Enemy extends Entity {
         // If the player is dead, shows death animation and entity goes idle facing last direction
         if (player.currentHealth <= 0 ) {
             if (player.currentSpriteKey !== "death") player.switchSprite("death")
+
             if (this.lastDirection === "left") {
-                if (this.currentSpriteKey !== "idleLeft") this.switchSprite("idleLeft")
+
+                if ("flightLeft" in this.animations){
+                    if (this.currentSpriteKey !== "flightLeft") this.switchSprite('flightLeft')
+                } else {
+                    if (this.currentSpriteKey !== "idleLeft") this.switchSprite("idleLeft")
+                }
+
             } else {
-                if (this.currentSpriteKey !== "idleRight") this.switchSprite("idleRight")
+                if ("flight" in this.animations){
+                    if (this.currentSpriteKey !== "flight") this.switchSprite('flight')
+                } else {
+                    if (this.currentSpriteKey !== "idleRight") this.switchSprite("idleRight")
+                }
             }
             return
         }
@@ -189,9 +206,9 @@ export class Enemy extends Entity {
         if (!this.isHit && collison({entity: this.detectionArea, block: player})) {
             this.alerted = true
 
-            // Tests if the player's position is to the right of the enemy
+            // Tests if the enemies's position is to the right of the player
             if (this.position.x > player.position.x) {
-
+                this.lastDirection = "left"
                 // if the enemy reaches the player's hitbox area, it stops and attacks, otherwise keeps running
                 if (collison({entity: this.attackBox, block: player.hitbox})){
                     this.velocity.x = 0
@@ -233,20 +250,27 @@ export class Enemy extends Entity {
                     //TODO: Player Block
                 } else {
                     // Checks if the Entity has either run or walk animations
-                    if ("runLeft" in this.animations){
+                    if ("flightLeft" in this.animations){
+                        if (this.currentSpriteKey !== "flightLeft") this.switchSprite('flightLeft')
+                    }else if ("runLeft" in this.animations){
                         if (this.currentSpriteKey !== "runLeft") this.switchSprite('runLeft')
                     } else {
                         if (this.currentSpriteKey !== "walkLeft") this.switchSprite('walkLeft')
                     }
-                    this.lastDirection = "left"
+                    // this.lastDirection = "left"
                     this.attackBox = this.attackBoxLeft
-                    // TODO: need to amek this slower for skeletons
-                    this.velocity.x = -3
+                    if (this.type === "Skeleton") {
+                        this.velocity.x = -0.25
+                    } else if (this.type === "WhiteWerewolf") {
+                        this.velocity.x = -5
+                    } else {
+                        this.velocity.x = -3
+                    }
                 }
             }
-            // Tests if the player's position is to the left of the enemy
+            // Tests if the enemies's position is to the left of the player
             else if (this.position.x < player.position.x) {
-
+                this.lastDirection = "right"
                 // if the enemy reaches the player's hitbox area, it stops and attacks, otherwise keeps running
                 if (collison({entity: this.attackBox, block: player.hitbox})){
                     this.velocity.x = 0
@@ -285,18 +309,74 @@ export class Enemy extends Entity {
                     }
                 } else {
                     // Checks if the Entity has either run or walk animations
-                    if ("runRight" in this.animations){
+                    if ("flight" in this.animations){
+                        if (this.currentSpriteKey !== "flight") this.switchSprite('flight')
+                    } else if ("runRight" in this.animations){
                         if (this.currentSpriteKey !== "runRight") this.switchSprite('runRight')
                     } else {
                         if (this.currentSpriteKey !== "walkRight") this.switchSprite('walkRight')
                     }
-                    this.lastDirection = "right"
+                    // this.lastDirection = "right"
                     this.attackBox = this.attackBoxRight
-                    this.velocity.x = 3
+                    if (this.type === "Skeleton") {
+                        this.velocity.x = 0.25
+                    } else if (this.type === "WhiteWerewolf") {
+                        this.velocity.x = 5
+                    }else {
+                        this.velocity.x = 3
+                    }
                 }
             }
         } else {
             this.alerted = false
+
+            // if current enemy does not roam
+            if (this.roamingPosition === false) {
+
+                // if enemy position is greater than initial position, walks or runs towards old position
+                if (this.position.x > this.startPosition) {
+                    this.velocity.x = -1
+                    if ("flightLeft" in this.animations){
+                        if (this.currentSpriteKey !== "flightLeft") this.switchSprite('flightLeft')
+                    } else if ("walkLeft" in this.animations){
+                        if (this.currentSpriteKey !== "walkLeft") this.switchSprite("walkLeft")
+                        this.velocity.x = -0.25
+                    } else {
+                        if (this.currentSpriteKey !== "runLeft") this.switchSprite("runLeft")
+                        this.velocity.x = -1.5
+                    }
+                }
+                // if enemy position is less than initial position, walks or runs towards old position
+                else if (this.position.x < this.startPosition) {
+                    this.velocity.x = 1
+                    if ("flight" in this.animations){
+                        if (this.currentSpriteKey !== "flight") this.switchSprite('flight')
+                    } else if ("walkRight" in this.animations){
+                        if (this.currentSpriteKey !== "walkRight") this.switchSprite("walkRight")
+                        this.velocity.x = 0.25
+                    } else {
+                        if (this.currentSpriteKey !== "runRight") this.switchSprite("runRight")
+                        this.velocity.x = 1.5
+                    }
+                }
+                // if enemy returns to old position, returns to idle position
+                else {
+                    this.velocity.x = 0
+                    if (this.lastDirection === "left") {
+                        if ("flightLeft" in this.animations){
+                            if (this.currentSpriteKey !== "flightLeft") this.switchSprite('flightLeft')
+                        } else {
+                            if (this.currentSpriteKey !== "idleLeft") this.switchSprite("idleLeft")
+                        }
+                    } else {
+                        if ("flight" in this.animations){
+                            if (this.currentSpriteKey !== "flight") this.switchSprite('flight')
+                        } else {
+                            if (this.currentSpriteKey !== "idleRight") this.switchSprite("idleRight")
+                        }
+                    }
+                }
+            }
         }
     }
 }
