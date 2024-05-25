@@ -44,11 +44,11 @@ export class Player extends Entity {
             width:70,
             height:25
         }
-        this.health = 300
-        this.currentHealth = 300
+        this.health = 500
+        this.currentHealth = 500
         this.isDead = false
         this.isAttacking = false
-        this.attackPower = 50
+        this.attackPower = 500
         this.stamina = 100
         this.maxStamina = 100
         this.attackStaminaCost = 20
@@ -58,6 +58,7 @@ export class Player extends Entity {
         this.nextAttackAnimation
         this.isPoweredUp = false // for any collectibles that can be stored
         this.powerupDuration = 0
+
     }
 
 
@@ -83,7 +84,7 @@ export class Player extends Entity {
         this.updateHitbox()
         this.updateHealthBarPosition()
         this.updateStaminaBar()
-        this.didCollectCollectables({collectibles})
+        this.didCollectCollectables({collectibles, currentMapKey})
         canvasContext.fillStyle = "red"
         canvasContext.fillRect(this.healthBar.position.x, this.healthBar.position.y, this.healthBar.width, this.healthBar.height)
         canvasContext.fillStyle = "rgba(0,0,230,0.7)"
@@ -97,7 +98,7 @@ export class Player extends Entity {
         this.updateAttackBox()
         this.updateHealthBarPosition()
         this.updateStaminaBar()
-        this.didCollectCollectables({collectibles})
+        this.didCollectCollectables({collectibles, currentMapKey})
         this.checkForHorizontalCollisions(currentMapCollisions)
 
         this.applyGravity()
@@ -105,10 +106,9 @@ export class Player extends Entity {
         this.updateAttackBox()
         this.updateHealthBarPosition()
         this.updateStaminaBar()
-        this.didCollectCollectables({collectibles})
+        this.didCollectCollectables({collectibles, currentMapKey})
         this.checkForVerticalCollisions(currentMapCollisions)
     }
-
 
     /**
      *
@@ -188,9 +188,9 @@ export class Player extends Entity {
      *
      * @param {collectibles} param0
      */
-    didCollectCollectables({collectibles}) {
+    didCollectCollectables({collectibles, currentMapKey}) {
         collectibles.forEach(collectible => {
-            if (collison({entity: this.hitbox, block: collectible}) && collectible.isPickedUp === false) {
+            if (collectible.mapKey === currentMapKey && collison({entity: this.hitbox, block: collectible}) && collectible.isPickedUp === false) {
                 collectible.isPickedUp = true
                 collectible.update({player:this})
                 if (collectible.type === "powerup") {
