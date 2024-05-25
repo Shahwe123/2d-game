@@ -40,9 +40,9 @@ export class EvilWizard extends Enemy {
         }
 
 
-        this.health = 300
-        this.currentHealth = 300
-        this.attackPower = 35
+        this.health = 400
+        this.currentHealth = 400
+        this.attackPower = 75
         this.attackAnimationKeys = ["attack1", "attack2"]
         this.attackAnimationKeysLeft = ["attack1Left", "attack2Left"]
     }
