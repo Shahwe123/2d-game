@@ -12,6 +12,10 @@ body {
     background-color: #3a4466;
 }
 
+li {
+    list-style: none;
+}
+
 canvas {
     border-radius: 2px;
 }
@@ -19,7 +23,7 @@ canvas {
 #menu {
     width: 960px;
     height: 640px;
-    /* display: none; */
+    display: none;
 }
 #menu-btns {
     display: flex;
@@ -57,7 +61,7 @@ canvas {
 
 #levels {
     position: relative;
-    display: none;
+    /* display: none; */
     flex-direction: column;
     margin-top: 175px;
     margin-left: 375px;
@@ -87,9 +91,13 @@ canvas {
     position: absolute;
     flex-direction: row-reverse;
     top: 10px;
-    right: 10px;
+    justify-content: space-between;
+    padding-left: 2px;
+    width: 100%;
 }
 
+#objectivesDiv {
+}
 
 
 #objectivesImg {
@@ -97,7 +105,16 @@ canvas {
     margin-top: 5px;
 }
 #objectives {
+    display: none;
     position: relative;
+    padding-right: 24px;
+}
+#objectivesBtn {
+
+}
+#objectivesBtn:hover {
+    cursor: pointer;
+    scale: 0.9;
 }
 
 .hearts {
@@ -119,20 +136,90 @@ canvas {
     }
 }
 
-.fadeInUp-animation {
-    animation: 1.5s fade;
-  }
 
 #death {
     position: absolute;
     display: none;
     opacity: 1;
-    top: 100%;
-    right: 210%;
-    width: 100px;
+    /* width: 100px; */
     transition: opacity 3s ease-out;
+    z-index: 1;
+}
+
+#respawnBtn {
+    position: absolute;
+    bottom: 100px;
+    right: 37%;
+    padding: 30px 80px;
+    font-size: larger;
+    border-radius: 20px;
+    background-color: #252525;
+    color: #ead4aa;
+    border: none;
+}
+
+#respawnBtn:hover {
+    cursor: pointer;
 }
 
 .fadeInUp-animation {
-    animation: 1.5s fadeInUp ease-in;
+    animation: 1.5s fade ease-in;
+}
+#bossHealthBar {
+    width: 400px;
+    height: 20px;
+    background-color: red;
+    position: absolute;
+    left: 320px;
+    text-align: center;
+    padding: 5px;
+}
+
+#winScreen {
+    display: none;
+    position: absolute;
+}
+
+#nextLvlBtn {
+    position: absolute;
+    left: 29%;
+    top: 59%;
+    padding: 15px 30px;
+    border: none;
+    background-color: #743f39;
+    color: aliceblue;
+}
+
+#nextLvlBtn:hover{
+    cursor: pointer;
+}
+
+@-webkit-keyframes in {
+    0% { -webkit-transform: scale(0) ; opacity: 0; visibility: hidden;  }
+    100% { -webkit-transform: scale(1); opacity: 1; visibility: visible; }
+}
+
+@keyframes in {
+    0% { transform: scale(0) ; opacity: 0; visibility: hidden;  }
+    100% { transform: scale(1) rotate(0); opacity: 1; visibility: visible; }
+}
+
+@-webkit-keyframes out {
+    0% { -webkit-transform: scale(1) ; opacity: 1; visibility: visible; }
+    100% { -webkit-transform: scale(0) ; opacity: 0; visibility: hidden; }
+}
+
+@keyframes out {
+    0% { transform: scale(1) ; opacity: 1; visibility: visible; }
+    100% { transform: scale(0) ; opacity: 0; visibility: hidden;  }
+}
+
+.show {
+    -webkit-animation: in 700ms ease both;
+    animation: in 700ms ease both;
+  }
+
+.hide {
+    -webkit-animation: out 700ms ease both;
+    animation: out 700ms ease both;
   }

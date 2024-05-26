@@ -1,5 +1,5 @@
 import { collison } from "../utils"
-import { HealthKit } from "./Collectibles/HealthKit"
+
 /**
  * Represents any moving character, player or enemy
  *
@@ -47,7 +47,6 @@ export class Entity {
      * @param  key - refers to the animation e.g idleRight
      */
     switchSprite(key){
-        //TODO: if attackiong need to let animation finish before moving on
         if (this.currentSpriteKey === ('attack2') && this.currentFrame < this.animations['attack2'].frameRate - 1){
             return
         }
@@ -65,49 +64,6 @@ export class Entity {
         this.currentSpriteKey = key
         this.frameBuffer  = this.animations[key].frameBuffer
         this.frameRate = this.animations[key].frameRate
-    }
-
-    /**
-     *
-     * Used for enemy entities, if an enemy is hit by the player, health is removed based
-     * on the player' power level, if the enemy reaches 0 health dies and drops a collectible
-     *
-     * @param {player} param0
-     * @param {collectibles} param1
-     * @returns
-     */
-    takeHit({player, collectibles}){
-        if (!player.isAttacking) {
-            return
-        }
-
-        if (this.lastDirection === "left") {
-
-            if (this.currentSpriteKey !== "hurtLeft") this.switchSprite("hurtLeft")
-        } else {
-            if (this.currentSpriteKey !== "hurt") this.switchSprite("hurt")
-
-        }
-        let newWidth = (this.healthBar.width / this.health) * (this.health - player.attackPower)
-        this.healthBar.width = newWidth
-        this.currentHealth -= player.attackPower
-        if (this.currentHealth <= 0) {
-            this.isDead = true
-            if (this.lastDirection === "left" ) {
-                if (this.currentSpriteKey !== "deadLeft") this.switchSprite("deadLeft")
-            } else {
-                if (this.currentSpriteKey !== "dead") this.switchSprite("dead")
-            }
-            let id = (collectibles.length === 0 ? collectibles.length: collectibles.length + 1)
-            collectibles.push(new HealthKit({position: this.hitbox.position, mapKey: this.currentMapKey, id}))
-            // TODO: when more collectibles are created, the drops should be randomised
-        }
-        if (this.position.x > player.position.x) {
-            this.position.x += 5
-        } else {
-            this.position.x += -5
-        }
-        this.isHit = false
     }
 
     /**
@@ -163,7 +119,7 @@ export class Entity {
         let cropbox = {}
 
         // used for animations that have been inverted
-        if (this.currentSpriteKey.includes("Left") && (this.type === "WhiteWerewolf" || this.type === "Skeleton" || this.type === "Goblin" || this.type === "Player" || this.type === "Cthulu")) {
+        if (this.currentSpriteKey.includes("Left") && (this.type === "WhiteWerewolf" || this.type === "Skeleton" || this.type === "Goblin" || this.type === "Player" || this.type === "Cthulu" || this.type === "EvilWizard" || this.type === "Mushroom" || this.type === "FlyingEye")) {
             cropbox = {
                position: {
                    x:(this.animations[this.currentSpriteKey].frameRate - 1 - this.currentFrame) * (this.sprite.width / this.animations[this.currentSpriteKey].frameRate),
@@ -182,6 +138,7 @@ export class Entity {
                height:this.sprite.height
             }
         }
+
         canvasContext.drawImage(
             this.sprite,
             cropbox.position.x,
@@ -190,54 +147,9 @@ export class Entity {
             cropbox.height,
             this.position.x,
             this.position.y,
-            this.width ,
+            this.width,
             this.height
         )
-    }
-
-
-    /**
-     *
-     * Calls all update function related to each entity
-     *
-     * @param  canvasContext - canvas context
-     * @param  currentMapCollisions - the current maps collision blocks array
-     * @param  player - player entity used for entity detection
-     *
-     */
-    update({canvasContext, currentMapCollisions, player, collectibles}) {
-        this.updateFrames()
-        this.updateHitbox()
-        this.updateAttackBox()
-        this.updateHealthBarPosition()
-        this.updateDetectionArea()
-
-        canvasContext.fillStyle = "red"
-        // Boss entities have a larger healthbar
-        if (!this.boss) canvasContext.fillRect(this.healthBar.position.x, this.healthBar.position.y, this.healthBar.width, this.healthBar.height)
-
-        // if (this.type !== "Player") {
-        this.checkForPlayerDetection({player})
-        // }
-
-        // If an entity (enemy) is not alerted, allows for roaming.
-        // if (this.alerted === false && this.type !== "Player") {
-        if (this.alerted === false && this.type !== "Player") {
-            this.roaming()
-            this.attackBox = (this.roamDirection === "left"? this.attackBoxLeft: this.attackBoxRight)
-        }
-
-        this.draw({canvasContext})
-        this.position.x += this.velocity.x
-        this.updateHitbox()
-        this.updateAttackBox()
-        this.updateHealthBarPosition()
-        this.checkForHorizontalCollisions(currentMapCollisions)
-        this.applyGravity()
-        this.updateHitbox()
-        this.updateAttackBox()
-        this.updateHealthBarPosition()
-        this.checkForVerticalCollisions(currentMapCollisions)
     }
 
     /**
@@ -306,55 +218,6 @@ export class Entity {
                 this.currentFrame++
             } else this.currentFrame = 0
         }
-    }
-
-    /**
-     * Function causes entity to walk to and back from their roaming positions
-     * /TODO: Upon reaching their roaming position x and y, idle for a second than continue patrol
-     */
-    roaming() {
-
-        if (this.hitbox.position.x >= this.roamingPosition.rightX) {
-            // this.velocity.x = 0
-            // this.switchSprite("idleRight")
-            // this.isTimeOutOn = true
-            // setTimeout(() => {
-                this.roamDirection = "left"
-                this.currentAvatarPosition = this.avatarPositionLeft
-            //     this.isTimeOutOn = false
-            //     this.switchSprite("walkLeft")
-            // }, 500);
-        } else if (this.hitbox.position.x <= this.roamingPosition.leftX) {
-            // this.velocity.x = 0
-            // this.switchSprite("idleLeft")
-            // this.isTimeOutOn = true
-            // setTimeout(() => {
-                this.roamDirection = "right"
-                this.currentAvatarPosition = this.avatarPositionRight
-            //     this.isTimeOutOn = false
-            //     this.switchSprite("walkRight")
-            // }, 500);
-        }
-        if (this.roamDirection  === "left") {
-            // this.switchSprite("walkLeft")
-            if ("walkLeft" in this.animations){
-                if (this.currentSpriteKey !== "walkLeft") this.switchSprite("walkLeft")
-                this.velocity.x = -0.25
-            } else {
-                if (this.currentSpriteKey !== "runLeft") this.switchSprite("runLeft")
-                this.velocity.x = -1.5
-            }
-
-        } else if (this.roamDirection === "right") {
-            if ("walkRight" in this.animations){
-                if (this.currentSpriteKey !== "walkRight") this.switchSprite("walkRight")
-                this.velocity.x = 0.25
-            } else {
-                if (this.currentSpriteKey !== "runRight") this.switchSprite("runRight")
-                this.velocity.x = 1.5
-            }
-        }
-
     }
 
     /**

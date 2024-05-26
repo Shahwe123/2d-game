@@ -3,8 +3,9 @@ import { cthuluAnimations } from "../../assets/Enemies/cthulu/imageExports";
 import icon from '../../assets/Enemies/cthulu/Icon.png'
 import { collison } from "../../utils"
 import { HealthKit } from "../Collectibles/HealthKit"
+import { Enemy } from "./Enemy";
 
-export class Cthulu extends Entity {
+export class Cthulu extends Enemy {
     constructor({position, currentMapKey, roamingPosition}) {
         super({position: position, animations: cthuluAnimations})
         this.currentMapKey = currentMapKey
@@ -41,8 +42,8 @@ export class Cthulu extends Entity {
             height:25
         }
 
-        this.health = 50
-        this.currentHealth = 50
+        this.health = 500
+        this.currentHealth = 500
         this.attackPower = 50
         this.log = 0
     }
@@ -100,7 +101,7 @@ export class Cthulu extends Entity {
             this.velocity.x = 0
             return
         }
-        if (player.currentHealth === 0 ) {
+        if (player.currentHealth <= 0  ) {
             if (player.currentSpriteKey !== "death") player.switchSprite("death")
             if (this.lastDirection === "left") {
                 if (this.currentSpriteKey !== "idleLeft") this.switchSprite("idleLeft")

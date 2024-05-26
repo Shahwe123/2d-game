@@ -1,48 +1,35 @@
-import { werewolfAnimations } from "../../assets/Enemies/White Werewolf/werewolfImageExports";
+import { evilwizardAnimations } from "../../assets/Enemies/EvilWizard/wizardImageExports";
 import { collison } from "../../utils";
-import { HealthKit } from "../Collectibles/HealthKit";
 import { Entity } from "../Entity";
 import { Enemy } from "./Enemy";
 
-/**
- *
- *  WhiteWerewolf - represents an enemy entity
- *
- * @param position - an object of x and y
- * @param currentMapKey - which map the enemy is located in
- * @param roamingPosition - x and y object of where the enemy loops between
- *
- */
-
-export class WhiteWerewolf extends Enemy {
+export class EvilWizard extends Enemy {
     constructor({position, currentMapKey, roamingPosition}) {
-        super({position: position, animations: werewolfAnimations})
+        super({position: position, animations: evilwizardAnimations})
         this.currentMapKey = currentMapKey
-        this.type = "WhiteWerewolf"
+        this.type = "EvilWizard"
         this.roamingPosition = roamingPosition
         this.velocity = {
             x:0,
             y:1
         }
-        this.avatarHeight = 72
-        this.avatarWidth = 82
+        this.avatarHeight = 95
+        this.avatarWidth = 48
         this.avatarPositionRight = {
-            x:20,
-            y: 55
+            x:110,
+            y: 70
         }
         this.avatarPositionLeft = {
-            x:20,
-            y: 55
+            x:110,
+            y: 70
         }
         this.currentAvatarPosition = this.avatarPositionLeft
         this.currentFrame = 0
         this.elapsedFrames = 0
         this.frameBuffer = this.animations[this.currentSpriteKey].frameBuffer
-        this.frameRate = this.animations[this.currentSpriteKey].frameRate
-
         // combat code
         this.alerted = false
-        this.roamDirection = "right"
+        this.roamDirection = "left"
         this.attackBox = {
             position: {
                 x:0,
@@ -52,12 +39,12 @@ export class WhiteWerewolf extends Enemy {
             height:25
         }
 
-        let nextAttackAnimation
-        this.health = 350
-        this.currentHealth = 350
-        this.attackPower = 50
-        this.attackAnimationKeys = ["attack1", "attack2", "attack3", "runAttackRight"]
-        this.attackAnimationKeysLeft = ["attack1Left", "attack2Left", "attack3Left", "runAttackLeft"]
+
+        this.health = 400
+        this.currentHealth = 400
+        this.attackPower = 75
+        this.attackAnimationKeys = ["attack1", "attack2"]
+        this.attackAnimationKeysLeft = ["attack1Left", "attack2Left"]
     }
 
     /**
@@ -66,10 +53,10 @@ export class WhiteWerewolf extends Enemy {
     updateDetectionArea() {
         this.detectionArea = {
             position:{
-                x:this.hitbox.position.x  -85,
+                x:this.hitbox.position.x -20,
                 y:this.hitbox.position.y
             },
-            width:250,
+            width:100,
             height:this.avatarHeight
         }
     }
@@ -80,18 +67,18 @@ export class WhiteWerewolf extends Enemy {
     updateAttackBox() {
         this.attackBoxLeft = {
             position: {
-                x:this.hitbox.position.x - 2,
-                y:this.hitbox.position.y + 25
+                x:this.hitbox.position.x - 45,
+                y:this.hitbox.position.y +40
             },
-            width:2,
+            width:45,
             height:25
         }
         this.attackBoxRight = {
             position: {
                 x:this.hitbox.position.x + this.hitbox.width,
-                y:this.hitbox.position.y + 25
+                y:this.hitbox.position.y +40
             },
-            width:2,
+            width:56,
             height:25
         }
     }

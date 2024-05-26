@@ -4,10 +4,10 @@
  * @param position - object with x and y
  */
 export class CollisonBlock {
-    constructor({position}) {
+    constructor({position, pixelSize}) {
         this.position = position
-        this.width = 32
-        this.height = 32
+        this.width = pixelSize
+        this.height = pixelSize
     }
 
     /**

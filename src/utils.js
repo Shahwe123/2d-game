@@ -6,10 +6,10 @@ import { CollisonBlock } from "./Classes/CollisionBlock"
  * @param   array
  * @returns newArray - returns the array as a 2d array
  */
-function arrayMapper(array) {
+function arrayMapper(array, numOfPixels) {
     const newArray = []
-    for (let i = 0; i < array.length; i += 30) {
-        newArray.push(array.slice(i, i + 30))
+    for (let i = 0; i < array.length; i += numOfPixels) {
+        newArray.push(array.slice(i, i + numOfPixels))
     }
     return newArray
 }
@@ -21,8 +21,8 @@ function arrayMapper(array) {
  * @param   collision reference - the number that represents a collision block
  * @returns collisionBlockArray - an array of Collision Blocks
  */
-export function extractCollisions(array, collisionRefernce) {
-    const array2D = arrayMapper(array)
+export function extractCollisions(array, collisionRefernce, pixelSize, numOfPixels) {
+    const array2D = arrayMapper(array, numOfPixels)
     const collisionBlockArray = []
 
     array2D.forEach((row, indexRow) => {
@@ -30,9 +30,10 @@ export function extractCollisions(array, collisionRefernce) {
             if (symbol === collisionRefernce) {
                 collisionBlockArray.push(new CollisonBlock({
                     position:{
-                        x: indexCol * 32,
-                        y: indexRow * 32
-                    }
+                        x: indexCol * pixelSize,
+                        y: indexRow * pixelSize
+                    },
+                    pixelSize
                 }))
             }
         });
@@ -68,4 +69,23 @@ export function noEnemiesDead(enemies) {
         }
     });
     return deadCount
+}
+/**
+ * Returns the number of collected coins
+ *
+ * @param  enemies - array of coin
+ * @returns deadCount - number of dead enemies
+ */
+export function noCollectedCoins(collectibles) {
+    let coinsCollected = 0
+    collectibles.forEach(collectible => {
+        if (collectible.type === "coin" && collectible.isPickedUp) {
+            coinsCollected++
+        }
+    });
+    return coinsCollected
+}
+
+export const handleNextLevelBtn = (level) => {
+    return 2
 }

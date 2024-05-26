@@ -1,6 +1,7 @@
 import { goblinAnimations } from "../../assets/Enemies/Goblin/imageExports"
 import { collison } from "../../utils"
 import { Entity } from "../Entity"
+import { Enemy } from "./Enemy"
 /**
  *
  *  Goblin - represents an enemy entity
@@ -11,7 +12,7 @@ import { Entity } from "../Entity"
  *
  */
 
-export class Goblin extends Entity {
+export class Goblin extends Enemy {
     constructor({position, currentMapKey, roamingPosition}) {
         super({position: position, animations: goblinAnimations})
         this.currentMapKey = currentMapKey
@@ -52,93 +53,8 @@ export class Goblin extends Entity {
         this.health = 50
         this.currentHealth = 50
         this.attackPower = 15
-    }
-
-    /**
-     *
-     *  Checks for a collision between the enemies detection area and the player and attacks if close
-     *
-     * @param player - player instance
-     *
-     */
-    checkForPlayerDetection({player}) {
-        if (this.isDead) {
-            this.velocity.x = 0
-            return
-        }
-        if (player.currentHealth === 0 ) {
-            if (player.currentSpriteKey !== "death") player.switchSprite("death")
-            if (this.lastDirection === "left") {
-                if (this.currentSpriteKey !== "idleLeft") this.switchSprite("idleLeft")
-            } else {
-
-                if (this.currentSpriteKey !== "idleRight") this.switchSprite("idleRight")
-            }
-            return
-        }
-        // Collision with detection checks if the player is within the enemies detection area
-        // if so runs toward the player
-        if (!this.isHit && collison({entity: this.detectionArea, block: player})) {
-            this.alerted = true
-            // // if player is the to left
-            if (this.position.x > player.position.x) {
-                // if the enemy reaches the player's hitbox area, it attacks, otherwise keeps running
-
-                if (collison({entity: this.attackBox, block: player.hitbox})){
-
-                    this.velocity.x = 0
-                    if (this.currentSpriteKey !== "attackLeft") this.switchSprite("attackLeft")
-                // if the enemies attack animation is completed, it counts as a hit
-                    if ((this.currentFrame + 1) === this.frameRate){
-                        if (player.currentSpriteKey !== "hit") player.switchSprite("hit")
-                        let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
-                        player.healthBar.width = newWidth
-                        player.currentHealth -= this.attackPower
-                        this.currentFrame = 0
-                        if (player.currentHealth <= 0 ){
-                            player.isDead = true
-                            return
-                        }
-                    // player.position.x += -50
-
-                    }
-                //TODO: player blokc
-                } else {
-                    if (this.currentSpriteKey !== "runLeft") this.switchSprite('runLeft')
-                        this.lastDirection = "left"
-                        this.attackBox = this.attackBoxLeft
-                        this.velocity.x = -3.5
-                }
-
-                // if player is to the rigth
-            } else if (this.position.x < player.position.x) {
-
-
-                if (collison({entity: this.attackBox, block: player.hitbox})){
-                    this.velocity.x = 0
-                    if (this.currentSpriteKey !== "attack") this.switchSprite("attack")
-                    if ((this.currentFrame + 1) === this.frameRate){
-                         if (player.currentSpriteKey !== "hit") player.switchSprite("hit")
-                        let newWidth = (player.healthBar.width / player.health) * (player.health - this.attackPower)
-                        player.healthBar.width = newWidth
-                        player.currentHealth -= this.attackPower
-                        this.currentFrame = 0
-                        if (player.currentHealth <= 0 ){
-                            player.isDead = true
-                            return
-                        }
-                    // player.position.x += 50
-                    }
-                } else {
-                    if (this.currentSpriteKey !== "runRight") this.switchSprite('runRight')
-                        this.lastDirection = "right"
-                        this.attackBox = this.attackBoxRight
-                        this.velocity.x = 3.5
-                }
-            }
-        } else {
-            this.alerted = false
-        }
+        this.attackAnimationKeys = ['attack']
+        this.attackAnimationKeysLeft = ['attackLeft']
     }
 
     /**

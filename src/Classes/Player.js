@@ -44,11 +44,11 @@ export class Player extends Entity {
             width:70,
             height:25
         }
-        this.health = 300
-        this.currentHealth = 300
+        this.health = 500
+        this.currentHealth = 500
         this.isDead = false
         this.isAttacking = false
-        this.attackPower = 15
+        this.attackPower = 500
         this.stamina = 100
         this.maxStamina = 100
         this.attackStaminaCost = 20
@@ -56,6 +56,9 @@ export class Player extends Entity {
         this.cooldownTime = 5000
         this.regenerationRate = 10
         this.nextAttackAnimation
+        this.isPoweredUp = false // for any collectibles that can be stored
+        this.powerupDuration = 0
+
     }
 
 
@@ -70,21 +73,23 @@ export class Player extends Entity {
      */
     update({canvasContext, currentMapCollisions, enemies, collectibles, currentMapKey}) {
 
+        if (this.lastDirection === "left") {
+            this.currentAvatarPosition = this.avatarPositionLeft
+        } else {
+            this.currentAvatarPosition = this.avatarPositionRight
+        }
         // this.attack({enemies, collectibles, currentMapKey})
         this.updateFrames()
         this.draw({canvasContext})
         this.updateHitbox()
         this.updateHealthBarPosition()
         this.updateStaminaBar()
-        this.didCollectCollectables({collectibles})
+        this.didCollectCollectables({collectibles, currentMapKey})
         canvasContext.fillStyle = "red"
         canvasContext.fillRect(this.healthBar.position.x, this.healthBar.position.y, this.healthBar.width, this.healthBar.height)
-        canvasContext.fillStyle = "rgb(173,216,230)"
+        canvasContext.fillStyle = "rgba(0,0,230,0.7)"
         canvasContext.fillRect(this.staminaBar.position.x, this.staminaBar.position.y, this.staminaBar.width, this.staminaBar.height)
 
-
-        // canvasContext.fillStyle = "rgba(0,255,0,0.4)"
-        // canvasContext.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
         this.regenerateStamina()
 
         this.draw({canvasContext})
@@ -93,7 +98,7 @@ export class Player extends Entity {
         this.updateAttackBox()
         this.updateHealthBarPosition()
         this.updateStaminaBar()
-        this.didCollectCollectables({collectibles})
+        this.didCollectCollectables({collectibles, currentMapKey})
         this.checkForHorizontalCollisions(currentMapCollisions)
 
         this.applyGravity()
@@ -101,10 +106,9 @@ export class Player extends Entity {
         this.updateAttackBox()
         this.updateHealthBarPosition()
         this.updateStaminaBar()
-        this.didCollectCollectables({collectibles})
+        this.didCollectCollectables({collectibles, currentMapKey})
         this.checkForVerticalCollisions(currentMapCollisions)
     }
-
 
     /**
      *
@@ -184,14 +188,22 @@ export class Player extends Entity {
      *
      * @param {collectibles} param0
      */
-    didCollectCollectables({collectibles}) {
+    didCollectCollectables({collectibles, currentMapKey}) {
         collectibles.forEach(collectible => {
-            if (collison({entity: this.hitbox, block: collectible}) && collectible.isPickedUp === false) {
+            if (collectible.mapKey === currentMapKey && collison({entity: this.hitbox, block: collectible}) && collectible.isPickedUp === false) {
                 collectible.isPickedUp = true
                 collectible.update({player:this})
+                if (collectible.type === "powerup") {
+                    this.isPoweredUp = true
+                }
             }
         });
+        // TODO: take away magic numbers
+        this.powerupDuration += 10 * (1/60)
+        if (this.powerupDuration === 250) {
+            this.attackPower -= 25
 
+        }
     }
 
     /**
