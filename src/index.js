@@ -84,9 +84,9 @@ function animate() {
 
     map.update({canvasContext})
 
-    currentMapCollisions.forEach(element => {
-        element.draw({canvasContext})
-    });
+    // currentMapCollisions.forEach(element => {
+        // element.draw({canvasContext})
+    // });
 
     // Calls update for all enemies in the current map and checks and updates the no.of enemies killed
     enemies.forEach(enemy => {
