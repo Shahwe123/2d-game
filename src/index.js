@@ -15,7 +15,6 @@ import SingleBtnPng from "./assets/Map/SingleButton.png"
 import deathPng from "./assets/Map/newDeathScreen.png"
 import objectivesBtnPng from './assets/Map/objectivesBtn.png'
 import winScreenImg from './assets/Map/winScreen.png'
-import { handleNextLevelBtn, noEnemiesDead } from "./utils"
 import { BossObjective } from "./Classes/Objectives/BossObjective"
 const canvas = document.querySelector('canvas')
 const canvasContext = canvas.getContext('2d')
