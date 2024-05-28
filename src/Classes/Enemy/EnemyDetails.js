@@ -1,8 +1,11 @@
+import { elementalIceAnimations } from "../../assets/Enemies/ElementalCrystal/imageExports";
 import { evilwizardAnimations } from "../../assets/Enemies/EvilWizard/wizardImageExports";
+import { flyingEyeAnimations } from "../../assets/Enemies/FlyingEye/imageExports";
 import { goblinAnimations } from "../../assets/Enemies/Goblin/imageExports";
 import { mushroomAnimations } from "../../assets/Enemies/Mushroom/imageExports";
 import { skeletonAnimations } from "../../assets/Enemies/Skeleton/imageExports";
 import { werewolfAnimations } from "../../assets/Enemies/White Werewolf/werewolfImageExports";
+import { cthuluAnimations } from "../../assets/Enemies/cthulu/imageExports";
 
 export const enemyDetails = {
     EvilWizard: {
@@ -94,5 +97,61 @@ export const enemyDetails = {
         attackAnimationKeys: ["attack1", "attack2", "attack3", "runAttackRight"],
         attackAnimationKeysLeft:["attack1Left", "attack2Left", "attack3Left", "runAttackLeft"],
         animations:werewolfAnimations,
+    },
+    FlyingEye: {
+        type: "FlyingEye",
+        avatarHeight:40,
+        avatarWidth:35,
+        avatarPositionRight:{
+            x:57,
+            y: 60
+        },
+        avatarPositionLeft:{
+            x:57,
+            y: 60
+        },
+        health:50,
+        attackPower:15,
+        attackAnimationKeys: ['attack'],
+        attackAnimationKeysLeft:['attackLeft'],
+        animations:flyingEyeAnimations,
+    },
+    Cthulu: {
+        type: "Cthulu",
+        avatarHeight:130,
+        avatarWidth:122,
+        avatarPositionRight:{
+            x:135,
+            y: 62
+        },
+        avatarPositionLeft:{
+            x:135,
+            y: 62
+        },
+        health:500,
+        attackPower:50,
+        attackAnimationKeys: ['attack'],
+        attackAnimationKeysLeft:['attackLeft'],
+        animations:cthuluAnimations,
+    },
+    ElementalIce: {
+        type: "ElementalIce",
+        avatarHeight:130,
+        avatarWidth:122,
+        avatarPositionRight:{
+            x:385,
+            y: 252
+        },
+        avatarPositionLeft:{
+            x:365,
+            y: 252
+        },
+        health:1000,
+        attackPower:50,
+        // attackAnimationKeys: ['specialAttack'],
+        // attackAnimationKeysLeft:['specialAttackLeft'],
+        attackAnimationKeys: ['attack1', 'attack2', 'attack3','specialAttack'],
+        attackAnimationKeysLeft:['attack1Left', 'attack2Left', 'attack3Left','specialAttackLeft'],
+        animations:elementalIceAnimations,
     }
 }
