@@ -1,5 +1,5 @@
 import { Collectible } from "./Collectible";
-import powerupSrc from '../../assets/Collectibles/powerup.png'
+import powerupSrc from '../../assets/Collectibles/powerup1.png'
 
 export class Powerup extends Collectible {
 
@@ -14,8 +14,6 @@ export class Powerup extends Collectible {
         this.duration = 250
         this.isActivated = false
     }
-    //TODO: image too big
-    // add too inventi
 
     draw({canvasContext}) {
         canvasContext.drawImage(this.image, this.position.x, this.position.y, this.width / 2, this.height / 2)
