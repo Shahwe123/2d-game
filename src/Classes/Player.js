@@ -48,17 +48,19 @@ export class Player extends Entity {
         this.currentHealth = 500
         this.isDead = false
         this.isAttacking = false
-        this.attackPower = 500
+        this.attackPower = 50
         this.stamina = 100
         this.maxStamina = 100
         this.attackStaminaCost = 20
+        this.jumpStaminaCost = 20
         this.cooldown = false
-        this.cooldownTime = 5000
+        this.cooldownTime = 4500
         this.regenerationRate = 10
         this.nextAttackAnimation
         this.isPoweredUp = false // for any collectibles that can be stored
         this.powerupDuration = 0
-
+        this.knockback = false
+        this.knockbackx = 0
     }
 
 
@@ -94,6 +96,12 @@ export class Player extends Entity {
 
         this.draw({canvasContext})
         if (!this.isDead) this.position.x += this.velocity.x
+        if (this.knockback) {
+            if (this.velocity.y === 0) {
+                this.velocity.x === 0
+                this.knockback = false
+            }
+        }
         this.updateHitbox()
         this.updateAttackBox()
         this.updateHealthBarPosition()
@@ -108,6 +116,28 @@ export class Player extends Entity {
         this.updateStaminaBar()
         this.didCollectCollectables({collectibles, currentMapKey})
         this.checkForVerticalCollisions(currentMapCollisions)
+    }
+
+    switchSprite(key){
+
+        if ((this.currentSpriteKey === ('attack2') && this.currentFrame < this.animations['attack2'].frameRate - 1) ||
+        this.currentSpriteKey === ('hit') && this.currentFrame < this.animations['hit'].frameRate - 1 && this.type === "Player"){
+            return
+        }
+        if (this.isTimeOutOn) {
+            return
+        }
+        this.currentFrame = 0
+        if (this.sprite === this.animations[key].image || !this.loaded) return
+        if (this.lastDirection == 'right') {
+            this.currentAvatarPosition = this.avatarPositionRight
+        } else {
+            this.currentAvatarPosition = this.avatarPositionLeft
+        }
+        this.sprite = this.animations[key].image
+        this.currentSpriteKey = key
+        this.frameBuffer  = this.animations[key].frameBuffer
+        this.frameRate = this.animations[key].frameRate
     }
 
     /**
@@ -135,7 +165,7 @@ export class Player extends Entity {
             this.switchSprite(this.nextAttackAnimation)
         }
 
-        if (this.stamina <= 0) {
+        if (this.stamina <= 10) {
             this.startCooldown()
         }
 
@@ -143,7 +173,6 @@ export class Player extends Entity {
             if (enemy.isDead) {
                 return
             }
-            // TODO: still a little glitchy, sometimes does not respond
             if (enemy.currentMapKey === currentMapKey && collison({entity: this.attackBox, block: enemy.hitbox}) ){
                 enemy.isHit = true
                 enemy.takeHit({player:this, collectibles})
@@ -178,7 +207,6 @@ export class Player extends Entity {
                 height:25
             }
         }
-        //TODO: maybe inside healthbar add acutal health to show progress
     }
 
     /**
@@ -198,7 +226,6 @@ export class Player extends Entity {
                 }
             }
         });
-        // TODO: take away magic numbers
         this.powerupDuration += 10 * (1/60)
         if (this.powerupDuration === 250) {
             this.attackPower -= 25
