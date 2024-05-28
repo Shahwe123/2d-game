@@ -55,7 +55,7 @@ export class WhiteWerewolf extends Enemy {
         let nextAttackAnimation
         this.health = 350
         this.currentHealth = 350
-        this.attackPower = 50
+        this.attackPower = 250
         this.attackAnimationKeys = ["attack1", "attack2", "attack3", "runAttackRight"]
         this.attackAnimationKeysLeft = ["attack1Left", "attack2Left", "attack3Left", "runAttackLeft"]
     }
