@@ -4,9 +4,31 @@ import { Powerup } from "../Collectibles/Powerup";
 import { Entity } from "../Entity";
 
 export class Enemy extends Entity {
-    constructor({position, animations}) {
-        super({position, animations})
+    constructor({position, currentMapKey, roamingPosition, enemyDetails}) {
+        super({position, animations: enemyDetails.animations})
+
         this.startPosition = position.x
+        this.currentMapKey = currentMapKey
+        this.roamingPosition = roamingPosition
+        this.currentFrame = 0
+        this.elapsedFrames = 0
+        this.alerted = false
+
+        this.roamDirection = "left"
+        this.frameBuffer = this.animations[this.currentSpriteKey].frameBuffer
+        // this.enemyDetails = enemyDetails
+        this.type = enemyDetails.type
+        this.avatarHeight = enemyDetails.avatarHeight
+        this.avatarWidth = enemyDetails.avatarWidth
+        this.avatarPositionRight = enemyDetails.avatarPositionRight
+        this.avatarPositionLeft = enemyDetails.avatarPositionLeft
+        this.currentAvatarPosition = this.avatarPositionLeft
+        this.health = enemyDetails.health
+        this.currentHealth = this.health
+        this.attackPower = enemyDetails.attackPower
+        this.attackAnimationKeys = enemyDetails.attackAnimationKeys
+        this.attackAnimationKeysLeft = enemyDetails.attackAnimationKeysLeft
+        this.attackBox = this.attackBoxLeft
         // this.isOnPlatform
         // if variable false enemy  not restricted, if has an object, or x positoin , entity cannot go past that
     }
@@ -75,9 +97,9 @@ export class Enemy extends Entity {
     update({canvasContext, currentMapCollisions, player, collectibles}) {
         this.updateFrames()
         this.updateHitbox()
-        this.updateAttackBox()
+        this.updateAttackBox(this.type)
         this.updateHealthBarPosition()
-        this.updateDetectionArea()
+        this.updateDetectionArea(this.type)
 
         canvasContext.fillStyle = "red"
         // Boss entities have a larger healthbar
@@ -96,52 +118,40 @@ export class Enemy extends Entity {
 
         // canvasContext.fillStyle = "rgba(0,255,0,0.4)"
         // canvasContext.fillRect(this.detectionArea.position.x, this.detectionArea.position.y, this.detectionArea.width, this.detectionArea.height)
-
         this.draw({canvasContext})
+
         this.position.x += this.velocity.x
         this.updateHitbox()
-        this.updateAttackBox()
+        this.updateAttackBox(this.type)
+
         this.updateHealthBarPosition()
         this.checkForHorizontalCollisions(currentMapCollisions)
         this.applyGravity()
         this.updateHitbox()
-        this.updateAttackBox()
+        this.updateAttackBox(this.type)
+
         this.updateHealthBarPosition()
         this.checkForVerticalCollisions(currentMapCollisions)
     }
 
     /**
      * Function causes entity to walk to and back from their roaming positions
-     * /TODO: Upon reaching their roaming position x and y, idle for a second than continue patrol
      */
     roaming() {
         if (!this.roamingPosition) return
         if (this.hitbox.position.x >= this.roamingPosition.rightX) {
-            // this.velocity.x = 0
-            // this.switchSprite("idleRight")
-            // this.isTimeOutOn = true
-            // setTimeout(() => {
-                this.roamDirection = "left"
-                this.currentAvatarPosition = this.avatarPositionLeft
-            //     this.isTimeOutOn = false
-            //     this.switchSprite("walkLeft")
-            // }, 500);
+            this.roamDirection = "left"
+            this.currentAvatarPosition = this.avatarPositionLeft
         } else if (this.hitbox.position.x <= this.roamingPosition.leftX) {
-            // this.velocity.x = 0
-            // this.switchSprite("idleLeft")
-            // this.isTimeOutOn = true
-            // setTimeout(() => {
-                this.roamDirection = "right"
-                this.currentAvatarPosition = this.avatarPositionRight
-            //     this.isTimeOutOn = false
-            //     this.switchSprite("walkRight")
-            // }, 500);
+            this.roamDirection = "right"
+            this.currentAvatarPosition = this.avatarPositionRight
         }
         if (this.roamDirection  === "left") {
             // this.switchSprite("walkLeft")
             if ("walkLeft" in this.animations){
                 if (this.currentSpriteKey !== "walkLeft") this.switchSprite("walkLeft")
-                this.velocity.x = -0.25
+
+                    this.velocity.x = -0.25
             } else {
                 if (this.currentSpriteKey !== "runLeft") this.switchSprite("runLeft")
                 this.velocity.x = -1.5
@@ -202,13 +212,17 @@ export class Enemy extends Entity {
         }
 
 
-        // Tests if player collides with the enemies detectionarea, if true, the enemy runs towards the player
-        if (!this.isHit && collison({entity: this.detectionArea, block: player})) {
-            this.alerted = true
 
+        // Tests if player collides with the enemies detectionarea, if true, the enemy runs towards the player
+        if (!this.isHit && collison({entity: this.detectionArea, block: player.hitbox})) {
+            this.alerted = true
             // Tests if the enemies's position is to the right of the player
-            if (this.position.x > player.position.x) {
+            if (this.hitbox.position.x > player.hitbox.position.x) {
+
                 this.lastDirection = "left"
+                if (!this.attackBox) {
+                    this.attackBox = this.attackBoxLeft
+                }
                 // if the enemy reaches the player's hitbox area, it stops and attacks, otherwise keeps running
                 if (collison({entity: this.attackBox, block: player.hitbox})){
                     this.velocity.x = 0
@@ -247,7 +261,6 @@ export class Enemy extends Entity {
                             return
                         }
                     }
-                    //TODO: Player Block
                 } else {
                     // Checks if the Entity has either run or walk animations
                     if ("flightLeft" in this.animations){
@@ -262,14 +275,18 @@ export class Enemy extends Entity {
                     if (this.type === "Skeleton") {
                         this.velocity.x = -0.25
                     } else if (this.type === "WhiteWerewolf") {
-                        this.velocity.x = -5
+                        this.velocity.x = -3.5
                     } else {
                         this.velocity.x = -3
                     }
                 }
             }
             // Tests if the enemies's position is to the left of the player
-            else if (this.position.x < player.position.x) {
+            else if (this.hitbox.position.x < player.hitbox.position.x) {
+                if (!this.attackBox) {
+                    this.attackBox = this.attackBoxRight
+                }
+
                 this.lastDirection = "right"
                 // if the enemy reaches the player's hitbox area, it stops and attacks, otherwise keeps running
                 if (collison({entity: this.attackBox, block: player.hitbox})){
@@ -305,7 +322,6 @@ export class Enemy extends Entity {
                             player.isDead = true
                             return
                         }
-                        // player.position.x += 50 //TODO: for werewolf
                     }
                 } else {
                     // Checks if the Entity has either run or walk animations
@@ -321,7 +337,7 @@ export class Enemy extends Entity {
                     if (this.type === "Skeleton") {
                         this.velocity.x = 0.25
                     } else if (this.type === "WhiteWerewolf") {
-                        this.velocity.x = 5
+                        this.velocity.x = 3.5
                     }else {
                         this.velocity.x = 3
                     }
@@ -377,6 +393,190 @@ export class Enemy extends Entity {
                     }
                 }
             }
+        }
+    }
+
+    updateAttackBox(enemyType) {
+        switch (enemyType) {
+            case 'EvilWizard':
+                this.attackBoxLeft = {
+                    position: {
+                        x:this.hitbox.position.x - 45,
+                        y:this.hitbox.position.y +40
+                    },
+                    width:45,
+                    height:25
+                }
+                this.attackBoxRight = {
+                    position: {
+                        x:this.hitbox.position.x + this.hitbox.width,
+                        y:this.hitbox.position.y +40
+                    },
+                    width:56,
+                    height:25
+                }
+                break;
+            case 'Goblin':
+                this.attackBoxLeft = {
+                    position: {
+                        x:this.hitbox.position.x - 25,
+                        y:this.hitbox.position.y
+                    },
+                    width:45,
+                    height:25
+                }
+                this.attackBoxRight = {
+                    position: {
+                        x:this.hitbox.position.x + 10,
+                        y:this.hitbox.position.y
+                    },
+                    width:56,
+                    height:25
+                }
+                break;
+            case 'Mushroom':
+                this.attackBoxLeft = {
+                    position: {
+                        x:this.hitbox.position.x - 25,
+                        y:this.hitbox.position.y
+                    },
+                    width:45,
+                    height:25
+                }
+                this.attackBoxRight = {
+                    position: {
+                        x:this.hitbox.position.x + 10,
+                        y:this.hitbox.position.y
+                    },
+                    width:56,
+                    height:25
+                }
+                break;
+            case 'Skeleton':
+                this.attackBoxLeft = {
+                    position: {
+                        x:this.hitbox.position.x - 45,
+                        y:this.hitbox.position.y
+                    },
+                    width:45,
+                    height:25
+                }
+                this.attackBoxRight = {
+                    position: {
+                        x:this.hitbox.position.x + this.hitbox.width,
+                        y:this.hitbox.position.y
+                    },
+                    width:56,
+                    height:25
+                }
+                break;
+            case 'WhiteWerewolf':
+                this.detectionArea = {
+                    position:{
+                        x:this.hitbox.position.x  -85,
+                        y:this.hitbox.position.y
+                    },
+                    width:250,
+                    height:this.avatarHeight
+                }
+                break;
+            case 'FlyingEye':
+                this.detectionArea = {
+                    position:{
+                        x:this.hitbox.position.x - 125,
+                        y:this.hitbox.position.y
+                    },
+                    width: 300,
+                    height:this.avatarHeight
+                }
+                break;
+        }
+        // if (this.lastDirection === "left") {
+
+        //     this.attackBox = this.attackBoxLeft
+        // } else {
+        //     this.attackBox = this.attackBoxRight
+        // }
+    }
+
+    updateDetectionArea(enemyType) {
+        switch (enemyType) {
+            case 'EvilWizard':
+                this.detectionArea = {
+                    position:{
+                        x:this.hitbox.position.x -20,
+                        y:this.hitbox.position.y
+                    },
+                    width:100,
+                    height:this.avatarHeight
+                }
+                break;
+            case 'Goblin':
+                this.detectionArea = {
+                    position:{
+                        x:this.hitbox.position.x - 125,
+                        y:this.hitbox.position.y
+                    },
+                    width: 300,
+                    height:this.avatarHeight
+                }
+                break;
+            case 'Mushroom':
+                this.detectionArea = {
+                    position:{
+                        x:this.hitbox.position.x - 125,
+                        y:this.hitbox.position.y
+                    },
+                    width: 300,
+                    height:this.avatarHeight
+                }
+                break;
+            case 'Skeleton':
+                this.detectionArea = {
+                    position:{
+                        x:this.hitbox.position.x -20,
+                        y:this.hitbox.position.y
+                    },
+                    width:100,
+                    height:this.avatarHeight
+                }
+                break;
+            case 'WhiteWerewolf':
+                this.attackBoxLeft = {
+                    position: {
+                        x:this.hitbox.position.x - 2,
+                        y:this.hitbox.position.y + 25
+                    },
+                    width:2,
+                    height:25
+                }
+                this.attackBoxRight = {
+                    position: {
+                        x:this.hitbox.position.x + this.hitbox.width,
+                        y:this.hitbox.position.y + 25
+                    },
+                    width:2,
+                    height:25
+                }
+                break;
+            case 'FlyingEye':
+                this.attackBoxLeft = {
+                    position: {
+                        x:this.hitbox.position.x - 25,
+                        y:this.hitbox.position.y
+                    },
+                    width:45,
+                    height:25
+                }
+                this.attackBoxRight = {
+                    position: {
+                        x:this.hitbox.position.x + 10,
+                        y:this.hitbox.position.y
+                    },
+                    width:56,
+                    height:25
+                }
+                break;
         }
     }
 }
