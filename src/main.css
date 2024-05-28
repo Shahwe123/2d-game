@@ -23,7 +23,7 @@ canvas {
 #menu {
     width: 960px;
     height: 640px;
-    display: none;
+    /* display: none; */
 }
 #menu-btns {
     display: flex;
@@ -61,7 +61,7 @@ canvas {
 
 #levels {
     position: relative;
-    /* display: none; */
+    display: none;
     flex-direction: column;
     margin-top: 175px;
     margin-left: 375px;
@@ -87,7 +87,7 @@ canvas {
 
 #gameInterface {
     display: flex;
-    /* display: none; */
+    display: none;
     position: absolute;
     flex-direction: row-reverse;
     top: 10px;
@@ -101,7 +101,7 @@ canvas {
 
 
 #objectivesImg {
-    /* display: none; */
+    display: none;
     margin-top: 5px;
 }
 #objectives {
@@ -148,11 +148,11 @@ canvas {
 
 #respawnBtn {
     position: absolute;
-    bottom: 100px;
-    right: 37%;
-    padding: 30px 80px;
+    bottom: 72px;
+    right: 91px;
+    padding: 15px 30px;
     font-size: larger;
-    border-radius: 20px;
+    border-radius: 8px;
     background-color: #252525;
     color: #ead4aa;
     border: none;

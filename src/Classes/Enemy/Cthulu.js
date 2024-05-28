@@ -1,13 +1,10 @@
-import { Entity } from "../Entity";
-import { cthuluAnimations } from "../../assets/Enemies/cthulu/imageExports";
-import icon from '../../assets/Enemies/cthulu/Icon.png'
 import { collison } from "../../utils"
-import { HealthKit } from "../Collectibles/HealthKit"
 import { Enemy } from "./Enemy";
+import { enemyDetails } from "./EnemyDetails";
 
 export class Cthulu extends Enemy {
     constructor({position, currentMapKey, roamingPosition}) {
-        super({position: position, animations: cthuluAnimations})
+        super({position: position, enemyDetails: enemyDetails.Cthulu})
         this.currentMapKey = currentMapKey
         this.type = "Cthulu"
         this.boss = true

@@ -16,19 +16,14 @@ import Lvl2LeftBottomMapSrc from './assets/Map/LevelTwo/Lvl2LeftBottomMap.png'
 import Lvl2RightBottomMapSrc from './assets/Map/LevelTwo/Lvl2RightBottomMap.png'
 import Lvl2RightTopMapSrc from './assets/Map/LevelTwo/Lvl2RightTopMap.png'
 
-import { WhiteWerewolf } from "./Classes/Enemy/WhiteWerewolf"
-import { Skeleton } from "./Classes/Enemy/Skeleton"
-import { Goblin } from "./Classes/Enemy/Goblin"
 import { Cthulu } from "./Classes/Enemy/Cthulu"
-import { EvilWizard } from "./Classes/Enemy/EvilWizard"
 import { CoinsCollected } from "./Classes/Objectives/CoinsCollected"
 import { EnemiesKilled } from "./Classes/Objectives/EnemiesKilled"
-import { Mushroom } from "./Classes/Enemy/Mushroom"
 
 import { enemyDetails } from "./Classes/Enemy/EnemyDetails"
-import { Entity } from "./Classes/Entity"
 import { Coin } from "./Classes/Collectibles/Coin"
-import { FlyingEye } from "./Classes/Enemy/FlyingEye"
+import { Enemy } from "./Classes/Enemy/Enemy"
+import { ElementalIce } from "./Classes/Enemy/ElementalIce"
 
 /**
  * Defines a levels map structures.
@@ -388,7 +383,16 @@ const levelTwoMapStructure = {
             x:0,
             y:0
         },
-        enemies: [],
+        enemies: [
+            {
+                type: "ElementalIce",
+                position: {
+                    x:400,
+                    y:55
+                },
+                roamingPosition: false
+            }
+        ],
         coins: []
     },
     rightBottomMap:{
@@ -540,7 +544,7 @@ export let levels = {
                 newPlayerPosition,
             }
         },
-        layTrap:({currentMapCollisions, currentMapKey}) => {
+        layTrap:({currentMapCollisions, currentMapKey, enemies}) => {
             let trapSuccess = false
             if (currentMapKey === "startMap") {
                 currentMapCollisions.splice(41, 3)
@@ -635,12 +639,8 @@ export let levels = {
                 newPlayerPosition,
             }
         },
-        layTrap:({currentMapCollisions, currentMapKey}) => {
-            let trapSuccess = false
-            if (currentMapKey === "startMap") {
-                currentMapCollisions.splice(41, 3)
-                trapSuccess = true
-            }
+        layTrap:({currentMapCollisions, currentMapKey, enemies}) => {
+            enemies.push()
             return trapSuccess
         },
         locked: false,
@@ -650,8 +650,6 @@ export let levels = {
         }]
     },
 }
-
-//TODO: maybe can put init and changeMap functions into one
 
 /**
  * Creates an array of enemy instances for the current level
@@ -664,19 +662,21 @@ function createEnemies({levelStructure}) {
     for (const key in levelStructure) {
         levelStructure[key].enemies.forEach(enemy => {
             if (enemy.type === 'WhiteWerewolf') {
-                enemies.push(new WhiteWerewolf({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition}))
+                enemies.push(new Enemy({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition, enemyDetails: enemyDetails.WhiteWerewolf}))
             }  else if (enemy.type === "Skeleton") {
-                enemies.push(new Skeleton({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition}))
+                enemies.push(new Enemy({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition, enemyDetails: enemyDetails.Skeleton}))
             } else if (enemy.type === "Goblin") {
-                enemies.push(new Goblin({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition}))
+                enemies.push(new Enemy({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition, enemyDetails: enemyDetails.Goblin}))
             } else if (enemy.type === "Cthulu") {
                 enemies.push(new Cthulu({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition}))
             } else if (enemy.type === "EvilWizard") {
-                enemies.push(new EvilWizard({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition}))
+                enemies.push(new Enemy({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition, enemyDetails: enemyDetails.EvilWizard}))
             } else if (enemy.type === "Mushroom") {
-                enemies.push(new Mushroom({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition}))
+                enemies.push(new Enemy({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition, enemyDetails: enemyDetails.Mushroom}))
             } else if (enemy.type === "FlyingEye") {
-                enemies.push(new FlyingEye({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition}))
+                enemies.push(new Enemy({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition, enemyDetails: enemyDetails.FlyingEye}))
+            } else if (enemy.type === "ElementalIce") {
+                    enemies.push(new ElementalIce({position: enemy.position, currentMapKey: key, roamingPosition: enemy.roamingPosition}))
             }
         });
     }

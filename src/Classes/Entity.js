@@ -26,6 +26,10 @@ export class Entity {
             this.animations[key].image = image
 
         }
+        this.velocity = {
+            x:0,
+            y:1
+        }
         this.hitbox = {
             position: {
                 x: this.position.x,
@@ -47,9 +51,6 @@ export class Entity {
      * @param  key - refers to the animation e.g idleRight
      */
     switchSprite(key){
-        if (this.currentSpriteKey === ('attack2') && this.currentFrame < this.animations['attack2'].frameRate - 1){
-            return
-        }
         if (this.isTimeOutOn) {
             return
         }
