@@ -573,8 +573,8 @@ export let levels = {
             let enemies = createEnemies({levelStructure: levelTwoMapStructure})
 
             let objectives = createObjectives({
-                "enemiesKilled": {count: 1},
-                // "coinsCollected": {count: 1}
+                "enemiesKilled": {count: 11},
+                "coinsCollected": {count: 4}
             })
 
             let coins = createCoins({levelStructure: levelTwoMapStructure})
