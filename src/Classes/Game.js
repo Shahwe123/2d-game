@@ -233,6 +233,11 @@ export class PlatformGame {
      */
     handleRespawn = (e) => {
         // resets state variables
+        this.bossNotification = false
+        this.bossGameInterface = false
+        this.trapLaid = false
+        this.objectivesLaid = false
+        this.objectivesCompleted = 0
         this.player.isDead = false
         this.player.currentHealth = this.player.health
         this.player.lives = 3
