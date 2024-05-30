@@ -52,7 +52,7 @@ export class Player extends Entity {
         this.attackPower = 35
         this.stamina = 100
         this.maxStamina = 100
-        this.attackStaminaCost = 20
+        this.attackStaminaCost = 15
         this.jumpStaminaCost = 20
         this.cooldown = false
         this.cooldownTime = 4500
