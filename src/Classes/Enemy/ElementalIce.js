@@ -116,6 +116,7 @@ export class ElementalIce extends Enemy {
             } else {
                 if (this.currentSpriteKey !== "idleRight") this.switchSprite("idleRight")
             }
+            player.isDead = true
             return
         }
 
@@ -230,10 +231,10 @@ export class ElementalIce extends Enemy {
                         this.currentFrame = 0
                         this.nextAttackAnimation = this.selectRandomAttackAnimation(this.attackAnimationKeys)
                         this.attackBox = this.handleAttackBoxChange(this.nextAttackAnimation)
-                        if (player.currentHealth <= 0 ){
-                            player.isDead = true
-                            return
-                        }
+                    }
+                    if (player.currentHealth <= 0 ){
+                        player.isDead = true
+                        return
                     }
                 } else {
                     // Checks if the Entity has either run or walk animations
