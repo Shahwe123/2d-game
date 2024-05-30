@@ -44,11 +44,12 @@ export class Player extends Entity {
             width:70,
             height:25
         }
+        this.lives = 3
         this.health = 500
         this.currentHealth = 500
         this.isDead = false
         this.isAttacking = false
-        this.attackPower = 50
+        this.attackPower = 250
         this.stamina = 100
         this.maxStamina = 100
         this.attackStaminaCost = 20
@@ -61,6 +62,10 @@ export class Player extends Entity {
         this.powerupDuration = 0
         this.knockback = false
         this.knockbackx = 0
+        this.isInCombat = false
+        this.deathElement = document.getElementById("death")
+        this.respawnBtnElement = document.getElementById("respawnBtn")
+        this.heartsDiv = document.getElementById("hearts")
     }
 
 
@@ -73,14 +78,13 @@ export class Player extends Entity {
      * @param enemies - array of all the enemies in the level
      *
      */
-    update({canvasContext, currentMapCollisions, enemies, collectibles, currentMapKey}) {
+    update({canvasContext, currentMapCollisions, enemies, collectibles, currentMapKey, gameInstance}) {
 
         if (this.lastDirection === "left") {
             this.currentAvatarPosition = this.avatarPositionLeft
         } else {
             this.currentAvatarPosition = this.avatarPositionRight
         }
-        // this.attack({enemies, collectibles, currentMapKey})
         this.updateFrames()
         this.draw({canvasContext})
         this.updateHitbox()
@@ -116,8 +120,34 @@ export class Player extends Entity {
         this.updateStaminaBar()
         this.didCollectCollectables({collectibles, currentMapKey})
         this.checkForVerticalCollisions(currentMapCollisions)
+
+
+        if (this.lives === 0) {
+            this.deathElement.className = "show"
+            this.deathElement.style.display = "block"
+            this.respawnBtnElement.addEventListener('click', gameInstance.handleRespawn)
+        }
+        if (this.isDead === true && this.lives > 0) {
+
+            this.lives -= 1
+            this.heartsDiv.removeChild(this.heartsDiv.firstChild)
+        }
+        if (this.lives > 0 && this.isDead === true ) {
+            this.currentHealth = this.health
+            this.stamina = this.maxStamina
+            this.isDead = false
+            this.position = {
+                x: this.position.x,
+                y: 100
+            }
+        }
     }
 
+    /**
+     * Changes the sprite (image file) used for the characters animation
+     *
+     * @param  key - refers to the animation e.g idleRight
+     */
     switchSprite(key){
 
         if ((this.currentSpriteKey === ('attack2') && this.currentFrame < this.animations['attack2'].frameRate - 1) ||

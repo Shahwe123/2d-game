@@ -475,15 +475,16 @@ export let levels = {
          */
         init: () => {
 
-            // Create a background
-            const background = new Background({
-                position: {
-                    x: 0,
-                    y: 0
-                },
-                imageSrc: levelOneMapStructure.startMap.src,
-                key:"startMap",
-            })
+            for (const key in levelOneMapStructure) {
+                levelOneMapStructure[key].map = new Background({
+                    position: {
+                        x: 0,
+                        y: 0
+                    },
+                    imageSrc: levelOneMapStructure[key].src,
+                    key,
+                })
+            }
 
             let enemies = createEnemies({levelStructure: levelOneMapStructure})
             let objectives = createObjectives({"enemiesKilled": {count: 5}})
@@ -492,7 +493,7 @@ export let levels = {
 
             return {
                 collisions: levelOneMapStructure.startMap.collisionBlocksArray,
-                map: background,
+                map: levelOneMapStructure.startMap.map,
                 enemies,
                 objectives,
                 startPosition: {x:10, y:400},
@@ -529,25 +530,16 @@ export let levels = {
                 newPlayerPosition.x = currentPlayerPosition.x
                 newPlayerPosition.y = 640
             }
-            const newMap = new Background({
-                position: {
-                    x: 0,
-                    y: 0
-                },
-                imageSrc: levelOneMapStructure[newKey].src,
-                key:newKey,
-            })
-
             return {
                 collisions: levelOneMapStructure[newKey].collisionBlocksArray,
-                newMap,
+                newMap: levelOneMapStructure[newKey].map,
                 newPlayerPosition,
             }
         },
         layTrap:({currentMapCollisions, currentMapKey, enemies}) => {
             let trapSuccess = false
             if (currentMapKey === "startMap") {
-                currentMapCollisions.splice(41, 3)
+                currentMapCollisions.splice(62, 3)
                 trapSuccess = true
             }
             return trapSuccess
@@ -566,28 +558,30 @@ export let levels = {
          */
         init: () => {
 
-            // Create a background
-            const background = new Background({
-                position: {
-                    x: 0,
-                    y: 0
-                },
-                imageSrc: levelTwoMapStructure.startMap.src,
-                key:"startMap",
-            })
+            for (const key in levelTwoMapStructure) {
+                levelTwoMapStructure[key].map = new Background({
+                    position: {
+                        x: 0,
+                        y: 0
+                    },
+                    imageSrc: levelTwoMapStructure[key].src,
+                    key,
+                })
+            }
+
 
             let enemies = createEnemies({levelStructure: levelTwoMapStructure})
 
             let objectives = createObjectives({
-                "enemiesKilled": {count: 11},
-                "coinsCollected": {count: 4}
+                "enemiesKilled": {count: 1},
+                // "coinsCollected": {count: 1}
             })
 
             let coins = createCoins({levelStructure: levelTwoMapStructure})
 
             return {
                 collisions: levelTwoMapStructure.startMap.collisionBlocksArray,
-                map: background,
+                map: levelTwoMapStructure.startMap.map,
                 enemies,
                 objectives,
                 startPosition: {x:15, y:400},
@@ -624,18 +618,10 @@ export let levels = {
                 newPlayerPosition.x = currentPlayerPosition.x
                 newPlayerPosition.y = 560
             }
-            const newMap = new Background({
-                position: {
-                    x: 0,
-                    y: 0
-                },
-                imageSrc: levelTwoMapStructure[newKey].src,
-                key:newKey,
-            })
 
             return {
                 collisions: levelTwoMapStructure[newKey].collisionBlocksArray,
-                newMap,
+                newMap: levelTwoMapStructure[newKey].map,
                 newPlayerPosition,
             }
         },
