@@ -68,7 +68,7 @@ export class Enemy extends Entity {
             let id = (collectibles.length === 0 ? collectibles.length: collectibles.length + 1)
 
             // health repeated to have a higher drop chance
-            let differentCollectibles = ['health', "powerup", "health", 'health']
+            let differentCollectibles = ['health', "powerup", "health", 'health', "", "", "", "", "", ""]
             const randomCollectible = differentCollectibles[Math.floor(Math.random() * differentCollectibles.length)]
 
             if (randomCollectible === "health") {
@@ -216,6 +216,7 @@ export class Enemy extends Entity {
         // Tests if player collides with the enemies detectionarea, if true, the enemy runs towards the player
         if (!this.isHit && collison({entity: this.detectionArea, block: player.hitbox})) {
             this.alerted = true
+            player.isInCombat = true
             // Tests if the enemies's position is to the right of the player
             if (this.hitbox.position.x > player.hitbox.position.x) {
 
@@ -345,7 +346,7 @@ export class Enemy extends Entity {
             }
         } else {
             this.alerted = false
-
+            player.isInCombat = false
             // if current enemy does not roam
             if (this.roamingPosition === false) {
 
