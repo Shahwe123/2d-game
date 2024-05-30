@@ -78,9 +78,9 @@ export class Enemy extends Entity {
             }
         }
         if (this.position.x > player.position.x) {
-            this.position.x += 5
+            this.position.x += 1
         } else {
-            this.position.x += -5
+            this.position.x += -1
         }
         this.isHit = false
     }
