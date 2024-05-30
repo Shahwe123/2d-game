@@ -18,6 +18,9 @@ li {
 
 canvas {
     border-radius: 2px;
+    width: 960px;
+    height: 640px;
+    display: none;
 }
 
 #menu {
