@@ -21,7 +21,7 @@ export const enemyDetails = {
             y: 70
         },
         health:300,
-        attackPower:35,
+        attackPower:50,
         attackAnimationKeys: ["attack1", "attack2"],
         attackAnimationKeysLeft:["attack1Left", "attack2Left"],
         animations:evilwizardAnimations,
@@ -38,7 +38,7 @@ export const enemyDetails = {
             x:57,
             y: 60
         },
-        health:50,
+        health:200,
         attackPower:15,
         attackAnimationKeys: ['attack'],
         attackAnimationKeysLeft:['attackLeft'],
@@ -56,7 +56,7 @@ export const enemyDetails = {
             x:57,
             y: 60
         },
-        health:100,
+        health:125,
         attackPower:35,
         attackAnimationKeys: ['attack'],
         attackAnimationKeysLeft:['attackLeft'],
@@ -74,7 +74,7 @@ export const enemyDetails = {
             x:45,
             y: 50
         },
-        health:50,
+        health:250,
         attackPower:45,
         attackAnimationKeys: ['attack'],
         attackAnimationKeysLeft:['attackLeft'],
@@ -147,7 +147,7 @@ export const enemyDetails = {
             y: 252
         },
         health:1000,
-        attackPower:50,
+        attackPower:75,
         // attackAnimationKeys: ['specialAttack'],
         // attackAnimationKeysLeft:['specialAttackLeft'],
         attackAnimationKeys: ['attack1', 'attack2', 'attack3','specialAttack'],
